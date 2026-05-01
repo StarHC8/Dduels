@@ -110,22 +110,25 @@ public class Duel {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
         }
 
-        for (Player player : spectators) {
-            plugin.getSpectatorHandler().removeSpectatorEffect(player);
-        }
-
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Location playerSpawn = Bukkit.getWorlds().getFirst().getSpawnLocation();
+
             for (Player player : players) {
                 prepareInventoryLobby(player);
-                teleportPlayerLobby(player);
-                player.setGameMode(GameMode.ADVENTURE);
-                player.setAllowFlight(true);
-                player.setHealth(20);
+                player.teleportAsync(playerSpawn).thenRun(() -> {
+                    if (spectators.contains(player)) {
+                        plugin.getSpectatorHandler().removeSpectatorEffect(player);
+                    }
+
+                    player.setGameMode(GameMode.ADVENTURE);
+                    player.setAllowFlight(true);
+                    player.setHealth(20);
+                });
+
             }
 
             plugin.getWorldsHandler().deleteWorld(world);
             plugin.getDuelHandler().deleteDuel(this);
-
         }, 20 * 5L);
 
     }
@@ -200,23 +203,15 @@ public class Duel {
 
     }
 
-    public void teleportPlayerLobby(Player player) {
-        World spawnWorld = Bukkit.getWorlds().getFirst();
-        Location playerSpawn = spawnWorld.getSpawnLocation();
-        player.teleport(playerSpawn);
-
-    }
-
     public void startSpectating(Player spectator, Player toSpectate) {
         if (!players.contains(spectator)) {
             players.add(spectator);
         }
         spectators.add(spectator);
 
-        spectator.teleport(toSpectate.getLocation());
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        spectator.teleportAsync(toSpectate.getLocation()).thenRun(() -> {
             plugin.getSpectatorHandler().applySpectatorEffect(spectator);
-        }, 1L);
+        });
 
         spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("start-spectating").replace("[player]", toSpectate.getName()));
     }
@@ -224,9 +219,16 @@ public class Duel {
     public void stopSpectating(Player spectator) {
         players.remove(spectator);
         spectators.remove(spectator);
-        teleportPlayerLobby(spectator);
+
+        Location playerSpawn = Bukkit.getWorlds().getFirst().getSpawnLocation();
+        spectator.teleportAsync(playerSpawn).thenRun(() -> {
+            plugin.getSpectatorHandler().removeSpectatorEffect(spectator);
+            spectator.setAllowFlight(true);
+            spectator.setFlying(true);
+
+        });
         prepareInventoryLobby(spectator);
-        plugin.getSpectatorHandler().removeSpectatorEffect(spectator);
+
         spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
     }
 

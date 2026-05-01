@@ -15,15 +15,12 @@ public class SpectatorHandler {
     }
 
     public void applySpectatorEffect(Player player) {
-
         player.setGameMode(GameMode.ADVENTURE);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (player.isOnline()) {
-                player.setAllowFlight(true);
-                player.setFlying(true);
-            }
-        }, 1L);
+        if (player.isOnline()) {
+            player.setAllowFlight(true);
+            player.setFlying(true);
+        }
 
         player.setCollidable(false);
         player.setInvulnerable(true);
@@ -59,7 +56,6 @@ public class SpectatorHandler {
             if (online.getUniqueId().equals(player.getUniqueId())) continue;
             online.showPlayer(plugin, player);
         }
-
     }
 
 }
