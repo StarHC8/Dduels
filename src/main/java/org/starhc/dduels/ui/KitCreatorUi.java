@@ -131,11 +131,13 @@ public class KitCreatorUi extends PaginatedFastInv {
                     selectedKit.getSlot(),
                     inventoryItemsToSave,
                     armorItemsToSave,
-                    offHandItemToSave);
-
-            new KitSelectorUi(plugin, session).open(player);
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("kit-saved"));
-            player.getInventory().clear();
+                    offHandItemToSave).thenRun(() -> {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    new KitSelectorUi(plugin, session).open(player);
+                    player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("kit-saved"));
+                    player.getInventory().clear();
+                });
+            });
         });
 
         setItem(SLOT_DESTROY, Item.create(Material.COBWEB, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.destroy-item")), event -> {

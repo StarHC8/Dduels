@@ -18,6 +18,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     implementation("fr.mrmicky:fastinv:3.1.2")
+    implementation("com.zaxxer:HikariCP:5.1.0")
 }
 
 java {

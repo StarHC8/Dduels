@@ -2,6 +2,7 @@ package org.starhc.dduels.ui;
 
 import fr.mrmicky.fastinv.InventoryScheme;
 import fr.mrmicky.fastinv.PaginatedFastInv;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -51,10 +52,13 @@ public class KitSelectorUi extends PaginatedFastInv {
                     new KitCreatorUi(plugin, session, kit).open(session.getSender());
 
                 } else if (event.getClick() == ClickType.DROP) {
-                    plugin.getKitHandler().deleteKit(session.getSender().getUniqueId(), kit.getSlot());
-                    session.getSender().sendMessage(plugin.getConfigHandler().getMessageFromConfig("kit-deleted")
-                        .replace("[kit]", String.valueOf(kit.getSlot())));
-                    new KitSelectorUi(plugin, session).open(session.getSender());
+                    plugin.getKitHandler().deleteKit(session.getSender().getUniqueId(), kit.getSlot()).thenRun(() -> {
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            session.getSender().sendMessage(plugin.getConfigHandler().getMessageFromConfig("kit-deleted")
+                                    .replace("[kit]", String.valueOf(kit.getSlot())));
+                            new KitSelectorUi(plugin, session).open(session.getSender());
+                        });
+                    });
                 }
             });
         }

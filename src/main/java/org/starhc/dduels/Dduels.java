@@ -55,7 +55,7 @@ public final class Dduels extends JavaPlugin {
             getLogger().info("Connected to database!");
             kitHandler = new KitHandler(this);
             
-        } catch (SQLException e) {
+        } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Could not connect to database!", e);
         }
 
@@ -107,6 +107,9 @@ public final class Dduels extends JavaPlugin {
     public void onDisable() {
         getLogger().log(Level.INFO, "Starting cleaning up orphaned duel worlds and stopping Dduels: ");
         getWorldsHandler().cleanupOrphanedWorlds();
+        if (database != null) {
+            database.close();
+        }
     }
 
     private void loadCommand(String name, CommandExecutor executor, TabCompleter tabCompleter) {
