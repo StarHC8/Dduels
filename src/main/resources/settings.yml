@@ -1,0 +1,6 @@
+port: 3306
+host: "localhost"
+database: "test"
+kits_table: "kits_table"
+username: "root"
+password: "root"

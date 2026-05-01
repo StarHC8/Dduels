@@ -1,0 +1,45 @@
+maps:
+  0:
+    world: "stone" # The template world folder name
+    name: "Stone World" # The template display name
+    spawns:
+      1:
+        x: 2
+        y: 101
+        z: 0
+      2:
+        x: 27
+        y: 101
+        z: -25
+      3:
+        x: 2
+        y: 101
+        z: -25
+      4:
+        x: 27
+        y: 101
+        z: 0
+  1:
+    world: "sand" # The template world folder name
+    name: "Sand World" # The template display name
+    spawns:
+      1:
+        x: 2
+        y: 101
+        z: 0
+      2:
+        x: 27
+        y: 101
+        z: -25
+      3:
+        x: 2
+        y: 101
+        z: -25
+      4:
+        x: 27
+        y: 101
+        z: 0
+      5:
+        x: 14
+        y: 101
+        z: -14

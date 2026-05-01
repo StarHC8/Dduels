@@ -1,0 +1,60 @@
+messages:
+  console-command: "§cOnly players can use this command."
+
+  player-not-found: "§cPlayer not found."
+  self-duel: "§cYou cannot duel yourself."
+  self-accept: "§cYou cannot accept a duel request from yourself."
+  not-duelled: "§cYou do not have a duel request from this player."
+
+  kit-saved: "§aKit saved successfully."
+  kit-deleted: "§aKit deleted successfully."
+
+  request-sent: "§bYou sended a duel request to §9[player] §b. The request will expire in 60 seconds."
+  request-received: "§bYou received a duel request from §9[player]§b. Use §3/duelaccept [player] §bto accept."
+  expired-request-to: "§cDuel request to §9[player] §cexpired."
+  expired-request-from: "§cDuel request from §9[player] §cexpired."
+
+  accepted-request-to: "§bYou accepted the duel request from §9[player] §b!"
+  accepted-request-from: "§9[player]§b accepted your duel request!"
+
+  duel-win: "§6You won the match. Congratulations!"
+  duel-lose: "§cYou lost the match. Have luck the next time."
+
+  duel-cancelled: "§cDuel cancelled."
+  loading-duel: "§eLoading duel..."
+  going-lobby: "§eSending you to the lobby..."
+
+  player-left-duel: "§c[player] left the duel."
+  you-left-duel: "§cYou left the duel."
+  player-killed-player: "§d[killer] killed [killed]."
+
+  ui-names:
+    duel-sender: "Duel Sender"
+    map-selector: "Map Selector"
+    kit-selector: "Kit Selector"
+    kit-creator: "Kit Creator"
+
+  items-names:
+    new-kit: "§rNew Kit"
+    send-item: "§aSend"
+    cancel-item: "§cCancel"
+    save-item: "§aSave"
+    destroy-item: "§4Destroy Item"
+    enemy-item: "§dEnemy: §n[player]"
+    map-selector: "Map: [map]"
+    kit-selector: "Kit: [kit]"
+
+    helmet-slot: "§bHelmet Slot"
+    chestplate-slot: "§bChestplate Slot"
+    leggings-slot: "§bLeggings Slot"
+    boots-slot: "§bBoots Slot"
+    offhand-slot: "§bOffHand Slot"
+
+  system-errors:
+    no-map-templates: "§cNo Map Templates found! Contact system administrator."
+    no-map-spawns: "§cNo spawns defined for this map template! Contact system administrator."
+    no-kit-available: "§cNo Kit Available. Create one first."
+
+  commands-correct-use:
+    duel: "§cUsage: /duel <player>"
+    duel-accept: "§cUsage: /duelaccept <player>"
