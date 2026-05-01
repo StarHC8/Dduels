@@ -22,6 +22,8 @@ public class Duel {
     private World world;
 
     private List<Player> alivePlayers;
+    private List<Player> spectators = new ArrayList<>();
+    private List<Player> deads = new ArrayList<>();
     private Map<Player, Spawn> playersSpawns = new HashMap<>();
 
     public Duel(Dduels plugin, DuelSession session) {
@@ -39,6 +41,18 @@ public class Duel {
 
     public List<Player> getPlayers() {
         return players;
+    }
+
+    public List<Player> getAlivePlayers() {
+        return alivePlayers;
+    }
+
+    public List<Player> getDeads() {
+        return deads;
+    }
+
+    public List<Player> getSpectators() {
+        return spectators;
     }
 
     public MapTemplate getMapTemplate() {
@@ -60,8 +74,6 @@ public class Duel {
     }
 
     public void start()  {
-
-
         if (playersSpawns.isEmpty()) {
             Map<Integer, Spawn> spawns = mapTemplate.getSpawns();
             for (int i = 0; i < players.size(); i++) {
@@ -78,7 +90,6 @@ public class Duel {
         }
 
         for (Player player : players) {
-
             prepareInventoryDuel(player);
             teleportPlayerDuel(player);
             player.setGameMode(GameMode.SURVIVAL);
@@ -93,12 +104,10 @@ public class Duel {
         for (Player player : players) {
             if (player == winner) {
                 player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-win"));
-            } else {
+            } else if (deads.contains(player)) {
                 player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-lose"));
             }
-
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
-
         }
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -126,8 +135,8 @@ public class Duel {
                     .replace("[killed]", killed.getName()));
         }
 
-        killed.getInventory().clear();
-        killed.setGameMode(GameMode.SPECTATOR);
+        deads.add(killed);
+        startSpectating(killed, killer);
 
         checkForDuelEnd();
 
@@ -139,14 +148,11 @@ public class Duel {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-left-duel").replace("[player]", leaver.getName()));
         }
 
-        if (alivePlayers.contains(leaver)) {
-            alivePlayers.remove(leaver);
-        }
-
+        deads.add(leaver);
         if (leaver.isOnline()) {
-            leaver.getInventory().clear();
-            leaver.setGameMode(GameMode.SPECTATOR);
+            startSpectating(leaver, alivePlayers.getFirst());
         } else {
+            alivePlayers.remove(leaver);
             players.remove(leaver);
         }
 
@@ -193,6 +199,32 @@ public class Duel {
         Location playerSpawn = spawnWorld.getSpawnLocation();
         player.teleport(playerSpawn);
 
+    }
+
+    public void startSpectating(Player spectator, Player toSpectate) {
+
+        if (alivePlayers.contains(spectator)) {
+            alivePlayers.remove(spectator);
+        }
+
+        if (!players.contains(spectator)) {
+            players.add(spectator);
+        }
+
+        spectators.add(spectator);
+
+        spectator.teleport(toSpectate.getLocation());
+        spectator.setGameMode(GameMode.SPECTATOR);
+        spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("start-spectating").replace("[player]", toSpectate.getName()));
+    }
+
+    public void stopSpectating(Player spectator) {
+        players.remove(spectator);
+        spectators.remove(spectator);
+        teleportPlayerLobby(spectator);
+        prepareInventoryLobby(spectator);
+        spectator.setGameMode(GameMode.ADVENTURE);
+        spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
     }
 
 

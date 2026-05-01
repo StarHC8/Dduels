@@ -4,8 +4,12 @@ messages:
   player-not-found: "§cPlayer not found."
   self-duel: "§cYou cannot duel yourself."
   self-accept: "§cYou cannot accept a duel request from yourself."
+  self-spectate: "§cYou cannot spectate yourself."
   not-duelled: "§cYou do not have a duel request from this player."
   player-already-in-duel: "§cCan't start: A player is already in a duel."
+  player-not-in-duel: "§cThis player isn't in a duel."
+  not-in-duel: "§cYou aren't in a duel."
+  not-a-spectator: "§cYou aren't a spectator."
 
   kit-saved: "§aKit saved successfully."
   kit-deleted: "§aKit deleted successfully."
@@ -30,6 +34,7 @@ messages:
   duel-cancelled: "§cDuel cancelled."
   loading-duel: "§eLoading duel..."
   going-lobby: "§eSending you to the lobby..."
+  start-spectating: "§bYou're now spectating the §9[player]§b's duel."
 
   player-left-duel: "§c[player] left the duel."
   you-left-duel: "§cYou left the duel."
@@ -65,3 +70,4 @@ messages:
   commands-correct-use:
     duel: "§cUsage: /duel <player>"
     duel-accept: "§cUsage: /duelaccept <player>"
+    spectate: "§cUsage: /spectate <player> (to spectate a player) || /spectate (to stop spectating)"

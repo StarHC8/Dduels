@@ -7,6 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.starhc.dduels.commands.DuelAcceptCommand;
 import org.starhc.dduels.commands.DuelCommand;
 import org.starhc.dduels.commands.LeaveCommand;
+import org.starhc.dduels.commands.SpectateCommand;
 import org.starhc.dduels.database.MySQL;
 import org.starhc.dduels.handlers.*;
 import org.starhc.dduels.listeners.JoinOrQuitListener;
@@ -60,6 +61,7 @@ public final class Dduels extends JavaPlugin {
         loadCommand("duel", new DuelCommand(this), new DuelCommand(this));
         loadCommand("duelaccept", new DuelAcceptCommand(this), new DuelAcceptCommand(this));
         loadCommand("leave", new LeaveCommand(this), new LeaveCommand(this));
+        loadCommand("spectate", new SpectateCommand(this), new SpectateCommand(this));
 
         getServer().getPluginManager().registerEvents(new PlayerDeathEvent(this), this);
         getServer().getPluginManager().registerEvents(new JoinOrQuitListener(this), this);

@@ -38,7 +38,16 @@ public class DuelHandler {
 
     public Duel getDuel(Player player) {
         for (Duel duel : activeDuels) {
-            if (duel.getPlayers().contains(player)) {
+            if (duel.getAlivePlayers().contains(player)) {
+                return duel;
+            }
+        }
+        return null;
+    }
+
+    public Duel getSpectatingDuel(Player player) {
+        for (Duel duel : activeDuels) {
+            if (duel.getSpectators().contains(player)) {
                 return duel;
             }
         }

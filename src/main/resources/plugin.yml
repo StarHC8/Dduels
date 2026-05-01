@@ -16,3 +16,7 @@ commands:
     description: Command to leave a duel.
     aliases:
       - l
+  spectate:
+    description: Command to spectate a duel.
+    aliases:
+      - spect
