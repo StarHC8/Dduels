@@ -5,12 +5,19 @@ messages:
   self-duel: "§cYou cannot duel yourself."
   self-accept: "§cYou cannot accept a duel request from yourself."
   not-duelled: "§cYou do not have a duel request from this player."
+  player-already-in-duel: "§cCan't start: A player is already in a duel."
 
   kit-saved: "§aKit saved successfully."
   kit-deleted: "§aKit deleted successfully."
 
   request-sent: "§bYou sended a duel request to §9[player] §b. The request will expire in 60 seconds."
-  request-received: "§bYou received a duel request from §9[player]§b. Use §3/duelaccept [player] §bto accept."
+  request-received:
+    received: "§bYou received a duel request from §9[player]§b:"
+    map: "§e● Map: [map]"
+    kit: "§e● Kit: [kit]"
+    accept: "§bUse §3/duelaccept [player] §bto accept."
+
+
   expired-request-to: "§cDuel request to §9[player] §cexpired."
   expired-request-from: "§cDuel request from §9[player] §cexpired."
 

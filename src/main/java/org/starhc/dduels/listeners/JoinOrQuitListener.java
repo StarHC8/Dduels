@@ -1,5 +1,6 @@
 package org.starhc.dduels.listeners;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,6 +13,18 @@ public class JoinOrQuitListener implements Listener {
     private Dduels plugin;
     public JoinOrQuitListener(Dduels plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        event.joinMessage(null);
+        Player player = event.getPlayer();
+
+        player.getInventory().clear();
+        player.setGameMode(GameMode.ADVENTURE);
+        player.setAllowFlight(true);
+        player.setHealth(20);
+
     }
 
     @EventHandler

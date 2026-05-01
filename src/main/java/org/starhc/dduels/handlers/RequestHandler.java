@@ -1,5 +1,7 @@
 package org.starhc.dduels.handlers;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.starhc.dduels.Dduels;
@@ -22,7 +24,23 @@ public class RequestHandler {
 
         pendingRequests.put(receiver.getUniqueId(), new Request(sender.getUniqueId(), session));
         sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-sent").replace("[player]", receiver.getName()));
-        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-received").replace("[player]", sender.getName()));
+
+        String mapName = session.getSelectedMapTemplate().get().getTemplateDisplayName();
+        String kitName = "[" + session.getSelectedKit().get().getSlot() + "]";
+
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-received.received")
+                .replace("[player]", sender.getName()));
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-received.map")
+                .replace("[map]", mapName));
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-received.kit")
+                .replace("[kit]", kitName));
+
+        String acceptText = plugin.getConfigHandler().getMessageFromConfig("request-received.accept")
+                .replace("[player]", sender.getName());
+
+        TextComponent acceptComponent = new TextComponent(acceptText);
+        acceptComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/duelaccept " + sender.getName()));
+        receiver.spigot().sendMessage(acceptComponent);
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (pendingRequests.containsKey(receiver.getUniqueId()) &&

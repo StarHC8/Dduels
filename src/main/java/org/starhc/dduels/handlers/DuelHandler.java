@@ -15,10 +15,23 @@ public class DuelHandler {
 
     public void newDuel(DuelSession session) {
 
-        List<Player> players = new ArrayList<>(session.getEnemies());
-        players.add(session.getSender());
+        List<Player> allPlayers = session.getAllPlayers();
 
-        Duel duel = new Duel(plugin, players, session.getSelectedMapTemplate().get(), session.getSelectedKit().get());
+        boolean valid = true;
+        for (Player player : allPlayers) {
+            if (getDuel(player) != null) {
+                valid = false;
+            }
+        }
+
+        if (!valid) {
+            for (Player player : allPlayers) {
+                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-already-in-duel"));
+            }
+            return;
+        }
+
+        Duel duel = new Duel(plugin, session);
         duel.init();
         activeDuels.add(duel);
     }

@@ -1,6 +1,8 @@
 package org.starhc.dduels.models;
 
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,10 +11,14 @@ public class DuelSession {
     private final List<Player> enemies;
     private MapTemplate selectedMapTemplate;
     private Kit selectedKit;
+    private List<Player> allPlayers;
 
     public DuelSession(Player sender, List<Player> enemies) {
         this.sender = sender;
         this.enemies = enemies;
+        allPlayers = new ArrayList<>(enemies);
+        allPlayers.add(sender);
+
     }
 
     public Player getSender() {
@@ -21,6 +27,10 @@ public class DuelSession {
 
     public List<Player> getEnemies() {
         return enemies;
+    }
+
+    public List<Player> getAllPlayers() {
+        return allPlayers;
     }
 
     public Optional<MapTemplate> getSelectedMapTemplate() {

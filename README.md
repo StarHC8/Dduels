@@ -12,8 +12,8 @@ You also have to configure the duel worlds from the file maps.yml
 Commit history and next steps:
 
 - [x] Initial Commit: 01/05/2026
-- [ ] Better visual requests: ??/??/????
-- [ ] Rematch/leave command: ??/??/????
+- [x] Better visual requests: 01/05/2026
+- [x] Leave command: 01/05/2026
 - [ ] Spectate command: ??/??/????
 - [ ] Stats system: ??/??/????
 - [ ] Party duels: ??/??/????

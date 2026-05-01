@@ -12,3 +12,7 @@ commands:
     description: Command to accept duel.
     aliases:
       - accept
+  leave:
+    description: Command to leave a duel.
+    aliases:
+      - l

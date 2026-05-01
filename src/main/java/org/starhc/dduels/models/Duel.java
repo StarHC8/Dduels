@@ -15,6 +15,7 @@ import java.util.Map;
 public class Duel {
 
     private Dduels plugin;
+    private DuelSession session;
     private List<Player> players;
     private MapTemplate mapTemplate;
     private Kit kit;
@@ -23,12 +24,14 @@ public class Duel {
     private List<Player> alivePlayers;
     private Map<Player, Spawn> playersSpawns = new HashMap<>();
 
-    public Duel(Dduels plugin, List<Player> players, MapTemplate mapTemplate, Kit kit) {
-
+    public Duel(Dduels plugin, DuelSession session) {
         this.plugin = plugin;
-        this.players = players;
-        this.mapTemplate = mapTemplate;
-        this.kit = kit;
+        this.session = session;
+
+        this.players = new ArrayList<>(session.getEnemies());
+        players.add(session.getSender());
+        this.mapTemplate = session.getSelectedMapTemplate().get();
+        this.kit = session.getSelectedKit().get();
 
         this.alivePlayers = new ArrayList<>(List.copyOf(players));
 
@@ -132,14 +135,19 @@ public class Duel {
 
     public void leave(Player leaver) {
 
+        for (Player player : players) {
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-left-duel").replace("[player]", leaver.getName()));
+        }
+
         if (alivePlayers.contains(leaver)) {
             alivePlayers.remove(leaver);
         }
 
-        players.remove(leaver);
-
-        for (Player player : players) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-left-duel").replace("[player]", leaver.getName()));
+        if (leaver.isOnline()) {
+            leaver.getInventory().clear();
+            leaver.setGameMode(GameMode.SPECTATOR);
+        } else {
+            players.remove(leaver);
         }
 
         checkForDuelEnd();
