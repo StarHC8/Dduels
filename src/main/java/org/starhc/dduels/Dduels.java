@@ -12,6 +12,7 @@ import org.starhc.dduels.database.MySQL;
 import org.starhc.dduels.handlers.*;
 import org.starhc.dduels.listeners.JoinOrQuitListener;
 import org.starhc.dduels.listeners.PlayerDeathEvent;
+import org.starhc.dduels.listeners.SpectatorListener;
 
 
 import java.sql.SQLException;
@@ -27,7 +28,7 @@ public final class Dduels extends JavaPlugin {
     private MapTemplateHandler mapTemplateHandler;
     private RequestHandler requestHandler;
     private DuelHandler duelHandler;
-
+    private SpectatorHandler spectatorHandler;
 
     @Override
     public void onEnable() {
@@ -37,9 +38,9 @@ public final class Dduels extends JavaPlugin {
         configHandler = new ConfigHandler(this);
         worldsHandler = new WorldsHandler(this);
         mapTemplateHandler = new MapTemplateHandler(this);
-
         requestHandler = new RequestHandler(this);
         duelHandler = new DuelHandler(this);
+        spectatorHandler = new SpectatorHandler(this);
 
 
         int port = configHandler.getConfig("settings").getInt("port");
@@ -65,6 +66,7 @@ public final class Dduels extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerDeathEvent(this), this);
         getServer().getPluginManager().registerEvents(new JoinOrQuitListener(this), this);
+        getServer().getPluginManager().registerEvents(new SpectatorListener(this), this);
         FastInvManager.register(this);
 
     }
@@ -97,6 +99,9 @@ public final class Dduels extends JavaPlugin {
         return duelHandler;
     }
 
+    public SpectatorHandler getSpectatorHandler() {
+        return spectatorHandler;
+    }
 
     @Override
     public void onDisable() {

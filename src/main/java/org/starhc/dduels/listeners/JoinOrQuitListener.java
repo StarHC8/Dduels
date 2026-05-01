@@ -1,6 +1,9 @@
 package org.starhc.dduels.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +22,12 @@ public class JoinOrQuitListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         event.joinMessage(null);
         Player player = event.getPlayer();
+
+        World spawnWorld = Bukkit.getWorlds().getFirst();
+        Location playerSpawn = spawnWorld.getSpawnLocation();
+        player.teleport(playerSpawn);
+
+        plugin.getSpectatorHandler().removeSpectatorEffect(player);
 
         player.getInventory().clear();
         player.setGameMode(GameMode.ADVENTURE);

@@ -110,6 +110,10 @@ public class Duel {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
         }
 
+        for (Player player : spectators) {
+            plugin.getSpectatorHandler().removeSpectatorEffect(player);
+        }
+
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (Player player : players) {
                 prepareInventoryLobby(player);
@@ -143,12 +147,14 @@ public class Duel {
     }
 
     public void leave(Player leaver) {
+        alivePlayers.remove(leaver);
 
         for (Player player : players) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-left-duel").replace("[player]", leaver.getName()));
         }
 
         deads.add(leaver);
+
         if (leaver.isOnline()) {
             startSpectating(leaver, alivePlayers.getFirst());
         } else {
@@ -202,19 +208,16 @@ public class Duel {
     }
 
     public void startSpectating(Player spectator, Player toSpectate) {
-
-        if (alivePlayers.contains(spectator)) {
-            alivePlayers.remove(spectator);
-        }
-
         if (!players.contains(spectator)) {
             players.add(spectator);
         }
-
         spectators.add(spectator);
 
         spectator.teleport(toSpectate.getLocation());
-        spectator.setGameMode(GameMode.SPECTATOR);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            plugin.getSpectatorHandler().applySpectatorEffect(spectator);
+        }, 1L);
+
         spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("start-spectating").replace("[player]", toSpectate.getName()));
     }
 
@@ -223,7 +226,7 @@ public class Duel {
         spectators.remove(spectator);
         teleportPlayerLobby(spectator);
         prepareInventoryLobby(spectator);
-        spectator.setGameMode(GameMode.ADVENTURE);
+        plugin.getSpectatorHandler().removeSpectatorEffect(spectator);
         spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
     }
 

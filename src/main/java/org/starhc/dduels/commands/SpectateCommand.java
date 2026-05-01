@@ -70,10 +70,8 @@ public class SpectateCommand implements CommandExecutor, TabCompleter {
             } else {
                 player.teleport(target.getLocation());
             }
-
             return true;
         }
-
 
         player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("commands-correct-use.spectate"));
         return false;
