@@ -42,6 +42,10 @@ messages:
 
   never-played: "§cThis player hasn't any stats."
 
+  party:
+    not-enough-players: "§cThis party doesn't have enough players to start a party duel."
+    party-not-available: "§cPartyManager isn't available! Contact system administrator."
+
   ui-names:
     duel-sender: "Duel Sender"
     map-selector: "Map Selector"
