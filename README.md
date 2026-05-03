@@ -15,7 +15,7 @@ Commit history and next steps:
 - [x] Better visual requests: 01/05/2026
 - [x] Leave command: 01/05/2026
 - [x] Spectate command: 01/05/2026
-- [ ] Stats system: ??/??/????
+- [x] Stats system: 03/05/2026
 - [ ] Party duels: ??/??/????
 - [ ] Maybe some code improvements: ??/??/????
 - [ ] Better presentation: ??/??/????

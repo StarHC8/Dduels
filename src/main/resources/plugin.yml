@@ -7,7 +7,6 @@ load: POSTWORLD
 commands:
   duel:
     description: Main command.
-
   duelaccept:
     description: Command to accept duel.
     aliases:
@@ -20,3 +19,5 @@ commands:
     description: Command to spectate a duel.
     aliases:
       - spect
+  stats:
+    description: Command to see a player's stats.

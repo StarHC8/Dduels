@@ -1,6 +1,7 @@
 port: 3306
 host: "localhost"
 database: "test"
+stats_table: "stats_table"
 kits_table: "kits_table"
 username: "root"
 password: "root"

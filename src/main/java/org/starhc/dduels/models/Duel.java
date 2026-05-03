@@ -63,7 +63,7 @@ public class Duel {
         return kit;
     }
 
-    public void init()  {
+    public void init() {
         for (Player player : players) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("loading-duel"));
         }
@@ -73,7 +73,7 @@ public class Duel {
 
     }
 
-    public void start()  {
+    public void start() {
         if (playersSpawns.isEmpty()) {
             Map<Integer, Spawn> spawns = mapTemplate.getSpawns();
             for (int i = 0; i < players.size(); i++) {
@@ -104,8 +104,10 @@ public class Duel {
         for (Player player : players) {
             if (player == winner) {
                 player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-win"));
+                plugin.getStatsHandler().addWin(player);
             } else if (deads.contains(player)) {
                 player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-lose"));
+                plugin.getStatsHandler().addLoss(player);
             }
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
         }

@@ -40,11 +40,15 @@ messages:
   you-left-duel: "§cYou left the duel."
   player-killed-player: "§d[killer] killed [killed]."
 
+  never-played: "§cThis player hasn't any stats."
+
   ui-names:
     duel-sender: "Duel Sender"
     map-selector: "Map Selector"
     kit-selector: "Kit Selector"
     kit-creator: "Kit Creator"
+
+    stats: "Stats: [player]"
 
   items-names:
     new-kit: "§rNew Kit"
@@ -61,6 +65,13 @@ messages:
     leggings-slot: "§bLeggings Slot"
     boots-slot: "§bBoots Slot"
     offhand-slot: "§bOffHand Slot"
+
+    duels-item: "§eDuels"
+    win-streak-item: "&bWin Streak"
+    wins-item: "&aWins"
+    longest-ws-item: "&6Longest Win Streak"
+    losses-item: "&cLosses"
+    go-back-item: "&7Go back"
 
   system-errors:
     no-map-templates: "§cNo Map Templates found! Contact system administrator."

@@ -14,6 +14,7 @@ import org.starhc.dduels.models.Duel;
 
 public class JoinOrQuitListener implements Listener {
     private Dduels plugin;
+
     public JoinOrQuitListener(Dduels plugin) {
         this.plugin = plugin;
     }
@@ -33,6 +34,10 @@ public class JoinOrQuitListener implements Listener {
         player.setGameMode(GameMode.ADVENTURE);
         player.setAllowFlight(true);
         player.setHealth(20);
+
+        if (!plugin.getStatsHandler().isPlayerInDatabase(player.getUniqueId())) {
+            plugin.getStatsHandler().addPlayer(player);
+        }
 
     }
 
