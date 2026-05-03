@@ -55,14 +55,14 @@ public class DuelUi extends FastInv {
 
         MapTemplate currentMap = session.getSelectedMapTemplate().get();
         setItem(4, Item.create(Material.GRASS_BLOCK, 1,
-                "§r" + plugin.getConfigHandler().getMessageFromConfig("items-names.map-selector")
-                        .replace("[map]", currentMap.getTemplateDisplayName())),
+                        "§r" + plugin.getConfigHandler().getMessageFromConfig("items-names.map-selector")
+                                .replace("[map]", currentMap.getTemplateDisplayName())),
                 event -> new MapSelectorUi(plugin, session).open(session.getSender()));
 
         String kitDisplay = session.getSelectedKit().map(k -> "[" + k.getSlot() + "]").orElse("[]");
         setItem(13, Item.create(Material.IRON_CHESTPLATE, 1,
-                "§r" + plugin.getConfigHandler().getMessageFromConfig("items-names.kit-selector")
-                        .replace("[kit]", kitDisplay)),
+                        "§r" + plugin.getConfigHandler().getMessageFromConfig("items-names.kit-selector")
+                                .replace("[kit]", kitDisplay)),
                 event -> new KitSelectorUi(plugin, session).open(session.getSender()));
     }
 
@@ -70,7 +70,12 @@ public class DuelUi extends FastInv {
         List<Player> allPlayers = new ArrayList<>(session.getEnemies());
         allPlayers.add(session.getSender());
 
-        plugin.getRequestHandler().sendRequest(session.getSender(), session.getEnemies().getFirst(), session);
+        if (allPlayers.size() == 2) {
+            plugin.getRequestHandler().sendRequest(session.getSender(), session.getEnemies().getFirst(), session);
+        } else {
+            plugin.getDuelHandler().newDuel(session);
+        }
+
         session.getSender().closeInventory();
     }
 

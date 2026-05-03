@@ -4,6 +4,7 @@ version: '${version}'
 main: org.starhc.dduels.Dduels
 api-version: '1.21'
 load: POSTWORLD
+softdepend: [PartyManager]
 commands:
   duel:
     description: Main command.
@@ -21,3 +22,7 @@ commands:
       - spect
   stats:
     description: Command to see a player's stats.
+  partyduel:
+    description: Command to create a duel with all the member of the party.
+    aliases:
+      - pd

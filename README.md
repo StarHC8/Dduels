@@ -16,6 +16,10 @@ Commit history and next steps:
 - [x] Leave command: 01/05/2026
 - [x] Spectate command: 01/05/2026
 - [x] Stats system: 03/05/2026
-- [ ] Party duels: ??/??/????
+- [x] Party duels: 03/05/2026
 - [ ] Maybe some code improvements: ??/??/????
 - [ ] Better presentation: ??/??/????
+
+It also has party support with my very basic party plugin: [PartyManager](https://github.com/StarHC8/PartyManager).
+
+You can start a party duel with /partyduel or /pd

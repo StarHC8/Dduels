@@ -1,6 +1,7 @@
 package org.starhc.dduels;
 
 import fr.mrmicky.fastinv.FastInvManager;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,6 +11,8 @@ import org.starhc.dduels.handlers.*;
 import org.starhc.dduels.listeners.JoinOrQuitListener;
 import org.starhc.dduels.listeners.PlayerDeathEvent;
 import org.starhc.dduels.listeners.SpectatorListener;
+import org.starhc.partyManager.PartyManager;
+import org.starhc.partyManager.handlers.PartyHandler;
 
 
 import java.sql.SQLException;
@@ -28,6 +31,9 @@ public final class Dduels extends JavaPlugin {
     private DuelHandler duelHandler;
     private SpectatorHandler spectatorHandler;
 
+    private PartyManager partyManager;
+    private PartyHandler partyHandler;
+
     @Override
     public void onEnable() {
 
@@ -39,7 +45,6 @@ public final class Dduels extends JavaPlugin {
         requestHandler = new RequestHandler(this);
         duelHandler = new DuelHandler(this);
         spectatorHandler = new SpectatorHandler(this);
-
 
         int port = configHandler.getConfig("settings").getInt("port");
         String host = configHandler.getConfig("settings").getString("host");
@@ -59,11 +64,21 @@ public final class Dduels extends JavaPlugin {
             getLogger().log(Level.SEVERE, "Could not connect to database!", e);
         }
 
+        if (Bukkit.getPluginManager().getPlugin("PartyManager") != null) {
+            partyManager = (PartyManager) Bukkit.getPluginManager().getPlugin("PartyManager");
+            assert partyManager != null;
+            partyHandler = partyManager.getPartyHandler();
+            getLogger().log(Level.INFO, "PartyManager found!");
+        } else {
+            getLogger().log(Level.WARNING, "Could not find PartyManager! Party-related functions will not be available.");
+        }
+
         loadCommand("duel", new DuelCommand(this), new DuelCommand(this));
         loadCommand("duelaccept", new DuelAcceptCommand(this), new DuelAcceptCommand(this));
         loadCommand("leave", new LeaveCommand(this), new LeaveCommand(this));
         loadCommand("spectate", new SpectateCommand(this), new SpectateCommand(this));
         loadCommand("stats", new StatsCommand(this), new StatsCommand(this));
+        loadCommand("partyduel", new PartyDuelCommand(this), new PartyDuelCommand(this));
 
         getServer().getPluginManager().registerEvents(new PlayerDeathEvent(this), this);
         getServer().getPluginManager().registerEvents(new JoinOrQuitListener(this), this);
@@ -106,6 +121,14 @@ public final class Dduels extends JavaPlugin {
 
     public SpectatorHandler getSpectatorHandler() {
         return spectatorHandler;
+    }
+
+    public PartyManager getPartyManager() {
+        return partyManager;
+    }
+
+    public PartyHandler getPartyHandler() {
+        return partyHandler;
     }
 
     @Override
