@@ -2,19 +2,23 @@ package org.starhc.dduels.handlers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.starhc.dduels.Dduels;
+import org.starhc.dduels.utils.Item;
 
 
 public class SpectatorHandler {
     private final Dduels plugin;
+
     public SpectatorHandler(Dduels plugin) {
         this.plugin = plugin;
     }
 
     public void applySpectatorEffect(Player player) {
+        giveSpectatorItems(player);
         player.setGameMode(GameMode.ADVENTURE);
 
         if (player.isOnline()) {
@@ -56,6 +60,15 @@ public class SpectatorHandler {
             if (online.getUniqueId().equals(player.getUniqueId())) continue;
             online.showPlayer(plugin, player);
         }
+    }
+
+    public void giveSpectatorItems(Player player) {
+        player.getInventory().clear();
+
+        player.getInventory().setItem(0, Item.create(Material.DIAMOND_BOOTS, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.fly-speed-item")));
+        player.getInventory().setItem(4, Item.create(Material.COMPASS, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.spect-navigator-item")));
+        player.getInventory().setItem(8, Item.create(Material.RED_DYE, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.stop-spectating-item")));
+
     }
 
 }
