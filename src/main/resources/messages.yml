@@ -54,6 +54,8 @@ messages:
     kit-creator: "Kit Creator"
 
     stats: "Stats: [player]"
+    spect-navigator: "Navigator"
+    fly-speed: "Fly speed"
 
   items-names:
     new-kit: "§rNew Kit"
@@ -77,6 +79,10 @@ messages:
     longest-ws-item: "&6Longest Win Streak"
     losses-item: "&cLosses"
     go-back-item: "&7Go back"
+
+    fly-speed-item: "§b§nFly speed"
+    spect-navigator-item: "§eNavigator"
+    stop-spectating-item: "§c§nGo back to lobby"
 
   system-errors:
     no-map-templates: "§cNo Map Templates found! Contact system administrator."
