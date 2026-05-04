@@ -1,10 +1,19 @@
 package org.starhc.dduels.utils;
 
 import org.bukkit.Material;
+import org.bukkit.potion.PotionType;
 
 import java.util.List;
 
 public class KitItemsList {
+
+    private static final List<PotionType> kitPotions = List.of(
+            PotionType.REGENERATION, PotionType.SWIFTNESS, PotionType.FIRE_RESISTANCE,
+            PotionType.HEALING, PotionType.NIGHT_VISION, PotionType.STRENGTH,
+            PotionType.LEAPING, PotionType.INVISIBILITY, PotionType.POISON,
+            PotionType.WEAKNESS, PotionType.SLOWNESS, PotionType.HARMING,
+            PotionType.WATER_BREATHING, PotionType.SLOW_FALLING, PotionType.TURTLE_MASTER
+    );
 
     private static final List<Material> kitUnstackableItems = List.of(
             // Wood
@@ -42,7 +51,7 @@ public class KitItemsList {
 
             // Ranged / extra
             Material.BOW, Material.CROSSBOW, Material.TRIDENT, Material.FISHING_ROD, Material.SHIELD, Material.MACE, Material.BUCKET,
-            Material.WATER_BUCKET, Material.LAVA_BUCKET, Material.TOTEM_OF_UNDYING, Material.OAK_BOAT
+            Material.WATER_BUCKET, Material.LAVA_BUCKET, Material.TOTEM_OF_UNDYING, Material.OAK_BOAT, Material.FLINT_AND_STEEL
 
     );
 
@@ -51,7 +60,7 @@ public class KitItemsList {
             Material.FIREWORK_ROCKET, Material.ARROW, Material.END_CRYSTAL, Material.OBSIDIAN, Material.GLOWSTONE,
 
             Material.RESPAWN_ANCHOR, Material.EXPERIENCE_BOTTLE, Material.COBWEB, Material.WIND_CHARGE,
-            Material.FLINT_AND_STEEL, Material.TNT, Material.COBBLESTONE, Material.OAK_PLANKS,
+            Material.TNT, Material.COBBLESTONE, Material.OAK_PLANKS,
             Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.GOLDEN_CARROT, Material.BEEF,
             Material.CHORUS_FRUIT, Material.BAKED_POTATO
     );
@@ -59,6 +68,10 @@ public class KitItemsList {
     private static final List<Material> kitLimitedStackableItems = List.of(
             Material.ENDER_PEARL, Material.SNOWBALL, Material.EGG
     );
+
+    public static List<PotionType> getKitPotions() {
+        return kitPotions;
+    }
 
     public static List<Material> getKitUnstackableItems() {
         return kitUnstackableItems;

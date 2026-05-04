@@ -8,8 +8,12 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.DuelSession;
 import org.starhc.dduels.models.Kit;
@@ -17,6 +21,7 @@ import org.starhc.dduels.utils.Item;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 import static org.starhc.dduels.utils.EnchantmentsUtils.getValidEnchantments;
 import static org.starhc.dduels.utils.KitItemsList.*;
@@ -35,6 +40,7 @@ public class KitCreatorUi extends PaginatedFastInv {
     private static final int SLOT_OFFHAND = 51;
 
     private static final Map<Material, String> NAME_CACHE = new ConcurrentHashMap<>();
+    private static final Map<PotionType, String> POTIONS_NAME_CACHE = new ConcurrentHashMap<>();
 
     private final Dduels plugin;
     private final DuelSession session;
@@ -218,6 +224,78 @@ public class KitCreatorUi extends PaginatedFastInv {
                 }
             });
         }
+
+        for (PotionType baseType : getKitPotions()) {
+            ItemStack itemStack = new ItemStack(Material.POTION);
+            PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
+            if (meta == null) continue;
+            meta.setBasePotionType(baseType);
+            String name = getItemDisplayName(baseType);
+            meta.setDisplayName("§r" + name);
+            itemStack.setItemMeta(meta);
+
+            final int[] selectedIndex = {0};
+            updatePotionLore(itemStack, selectedIndex[0]);
+
+            addContent(itemStack, event -> {
+                event.setCancelled(true);
+                PotionMeta currentMeta = (PotionMeta) itemStack.getItemMeta();
+                if (currentMeta == null) return;
+                PotionType currentType = currentMeta.getBasePotionType();
+
+                if (event.getClick() == ClickType.RIGHT) {
+                    selectedIndex[0] = (selectedIndex[0] + 1) % 2;
+                    updatePotionLore(itemStack, selectedIndex[0]);
+                    getInventory().setItem(event.getSlot(), itemStack);
+                } else if (event.getClick() == ClickType.SHIFT_LEFT) {
+                    if (selectedIndex[0] == 0) {
+                        Material nextMaterial = Material.POTION;
+                        if (itemStack.getType() == Material.POTION) nextMaterial = Material.SPLASH_POTION;
+                        else if (itemStack.getType() == Material.SPLASH_POTION) nextMaterial = Material.LINGERING_POTION;
+
+                        itemStack.setType(nextMaterial);
+                    } else {
+                        PotionType base = getBaseType(currentType);
+                        PotionType strong = getStrongVariant(base);
+                        PotionType longV = getLongVariant(base);
+
+                        PotionType nextType = base;
+                        if (currentType == base) {
+                            if (strong != null) nextType = strong;
+                            else if (longV != null) nextType = longV;
+                        } else if (currentType == strong) {
+                            if (longV != null) nextType = longV;
+                            else nextType = base;
+                        } else {
+                            nextType = base;
+                        }
+                        currentMeta.setBasePotionType(nextType);
+                        itemStack.setItemMeta(currentMeta);
+                    }
+                    updatePotionLore(itemStack, selectedIndex[0]);
+                    getInventory().setItem(event.getSlot(), itemStack);
+                } else if (event.getClick() == ClickType.LEFT) {
+                    ItemStack clone = itemStack.clone();
+                    ItemMeta cloneMeta = clone.getItemMeta();
+                    if (cloneMeta != null) {
+                        cloneMeta.setLore(null);
+                        clone.setItemMeta(cloneMeta);
+                    }
+                    event.getWhoClicked().getInventory().addItem(clone);
+                    
+                    itemStack.setType(Material.POTION);
+                    PotionMeta resetMeta = (PotionMeta) itemStack.getItemMeta();
+                    if (resetMeta != null) {
+                        resetMeta.setBasePotionType(baseType);
+                        itemStack.setItemMeta(resetMeta);
+                    }
+                    selectedIndex[0] = 0;
+                    updatePotionLore(itemStack, selectedIndex[0]);
+                    getInventory().setItem(event.getSlot(), itemStack);
+                }
+            });
+        }
+
     }
 
     private void updateLore(ItemStack item, List<Enchantment> enchants, int selectedIndex) {
@@ -236,10 +314,69 @@ public class KitCreatorUi extends PaginatedFastInv {
         item.setItemMeta(meta);
     }
 
-    public String getItemDisplayName(Material material) {
+    private void updatePotionLore(ItemStack item, int selectedIndex) {
+        ItemMeta meta = item.getItemMeta();
+        if (!(meta instanceof PotionMeta potionMeta)) return;
 
+        List<String> lore = new ArrayList<>();
+
+        // Form
+        String formName = item.getType().name().replace("_POTION", "").toLowerCase();
+        if (formName.equals("potion")) formName = "normal";
+        formName = formName.substring(0, 1).toUpperCase() + formName.substring(1);
+        lore.add((selectedIndex == 0 ? "§b▶ §f" : "§7  ") + "Form: §e" + formName);
+
+        // Upgrade
+        PotionType type = potionMeta.getBasePotionType();
+        String upgrade = "None";
+        if (type.name().startsWith("STRONG_")) upgrade = "Level II";
+        else if (type.name().startsWith("LONG_")) upgrade = "Extended";
+
+        lore.add((selectedIndex == 1 ? "§b▶ §f" : "§7  ") + "Upgrade: §e" + upgrade);
+
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+    }
+
+    private PotionType getBaseType(PotionType type) {
+        String name = type.name();
+        if (name.startsWith("STRONG_")) {
+            try { return PotionType.valueOf(name.substring(7)); } catch (Exception ignored) {}
+        }
+        if (name.startsWith("LONG_")) {
+            try { return PotionType.valueOf(name.substring(5)); } catch (Exception ignored) {}
+        }
+        return type;
+    }
+
+    private PotionType getStrongVariant(PotionType base) {
+        try {
+            return PotionType.valueOf("STRONG_" + base.name());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private PotionType getLongVariant(PotionType base) {
+        try {
+            return PotionType.valueOf("LONG_" + base.name());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getItemDisplayName(Material material) {
         return NAME_CACHE.computeIfAbsent(material, mat -> {
             String name = mat.name().replace("_", " ").toLowerCase();
+            return name.substring(0, 1).toUpperCase() + name.substring(1);
+        });
+    }
+
+    public String getItemDisplayName(PotionType potionType) {
+        return POTIONS_NAME_CACHE.computeIfAbsent(potionType, pType -> {
+            String name = pType.name().replace("_", " ").toLowerCase();
+            if (name.startsWith("strong_")) name = name.substring(7);
+            if (name.startsWith("long_")) name = name.substring(5);
             return name.substring(0, 1).toUpperCase() + name.substring(1);
         });
     }
@@ -250,10 +387,20 @@ public class KitCreatorUi extends PaginatedFastInv {
         int eventSlot = event.getSlot();
         ItemStack cursor = event.getCursor();
         ItemStack itemInSlot = event.getInventory().getItem(eventSlot);
+        Player clicker = (Player) event.getWhoClicked();
 
         if (event.getClick() == ClickType.DOUBLE_CLICK || event.getClick() == ClickType.DROP) {
             event.setCancelled(true);
             return;
+        }
+
+        if (event.getClick() == ClickType.RIGHT) {
+            if (cursor.getType() != Material.AIR) return;
+
+            if (event.getClickedInventory().equals(clicker.getInventory())) {
+                event.setCancelled(true);
+                clicker.setItemOnCursor(event.getClickedInventory().getItem(eventSlot));
+            }
         }
 
         if (List.of(SLOT_PREVIOUS_PAGE, SLOT_SAVE, SLOT_NEXT_PAGE).contains(eventSlot)) {
@@ -295,4 +442,15 @@ public class KitCreatorUi extends PaginatedFastInv {
             }
         }
     }
+
+    @Override
+    public void onClose(InventoryCloseEvent event) {
+        if (event.getReason().equals(InventoryCloseEvent.Reason.OPEN_NEW)) {
+            return;
+        }
+        event.getPlayer().sendMessage(plugin.getConfigHandler().getMessageFromConfig("kit-unsaved"));
+        event.getPlayer().getInventory().clear();
+    }
+
+
 }

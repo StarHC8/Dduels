@@ -12,6 +12,7 @@ messages:
   not-a-spectator: "§cYou aren't a spectator."
 
   kit-saved: "§aKit saved successfully."
+  kit-unsaved: "§cYou didn't save the kit."
   kit-deleted: "§aKit deleted successfully."
 
   request-sent: "§bYou sended a duel request to §9[player] §b. The request will expire in 60 seconds."
