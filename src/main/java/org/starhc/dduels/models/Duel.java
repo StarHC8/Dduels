@@ -151,6 +151,21 @@ public class Duel {
 
     }
 
+    public void death(Player dead) {
+        alivePlayers.remove(dead);
+
+        for (Player player : players) {
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-died").replace("[player]", dead.getName()));
+        }
+
+        deads.add(dead);
+
+        startSpectating(dead, alivePlayers.getFirst());
+
+        checkForDuelEnd();
+
+    }
+
     public void leave(Player leaver) {
         alivePlayers.remove(leaver);
 

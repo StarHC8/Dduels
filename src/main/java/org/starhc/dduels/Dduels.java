@@ -9,13 +9,11 @@ import org.starhc.dduels.commands.*;
 import org.starhc.dduels.database.MySQL;
 import org.starhc.dduels.handlers.*;
 import org.starhc.dduels.listeners.JoinOrQuitListener;
-import org.starhc.dduels.listeners.PlayerDeathEvent;
+import org.starhc.dduels.listeners.PlayerDeathListener;
 import org.starhc.dduels.listeners.SpectatorListener;
 import org.starhc.partyManager.PartyManager;
 import org.starhc.partyManager.handlers.PartyHandler;
 
-
-import java.sql.SQLException;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -80,7 +78,7 @@ public final class Dduels extends JavaPlugin {
         loadCommand("stats", new StatsCommand(this), new StatsCommand(this));
         loadCommand("partyduel", new PartyDuelCommand(this), new PartyDuelCommand(this));
 
-        getServer().getPluginManager().registerEvents(new PlayerDeathEvent(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         getServer().getPluginManager().registerEvents(new JoinOrQuitListener(this), this);
         getServer().getPluginManager().registerEvents(new SpectatorListener(this), this);
         FastInvManager.register(this);
