@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.starhc.dduels.Dduels;
+import org.starhc.dduels.enums.DuelType;
 import org.starhc.dduels.models.DuelSession;
 import org.starhc.dduels.models.Kit;
 import org.starhc.dduels.ui.DuelUi;
@@ -62,9 +63,9 @@ public class PartyDuelCommand implements CommandExecutor, TabCompleter {
                 .map(Bukkit::getPlayer)
                 .toList());
 
-        duelPlayers.remove(player);
-
         DuelSession session = new DuelSession(player, duelPlayers);
+
+        session.setDuelType(DuelType.FFA);
 
         session.setSelectedMapTemplate(plugin.getMapTemplateHandler().getMapTemplates().getFirst());
 

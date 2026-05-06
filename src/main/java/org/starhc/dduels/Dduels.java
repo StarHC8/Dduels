@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.starhc.dduels.commands.*;
 import org.starhc.dduels.database.MySQL;
 import org.starhc.dduels.handlers.*;
+import org.starhc.dduels.listeners.HitListener;
 import org.starhc.dduels.listeners.JoinOrQuitListener;
 import org.starhc.dduels.listeners.PlayerDeathListener;
 import org.starhc.dduels.listeners.SpectatorListener;
@@ -28,6 +29,7 @@ public final class Dduels extends JavaPlugin {
     private RequestHandler requestHandler;
     private DuelHandler duelHandler;
     private SpectatorHandler spectatorHandler;
+    private TeamHandler teamHandler;
 
     private PartyManager partyManager;
     private PartyHandler partyHandler;
@@ -43,6 +45,7 @@ public final class Dduels extends JavaPlugin {
         requestHandler = new RequestHandler(this);
         duelHandler = new DuelHandler(this);
         spectatorHandler = new SpectatorHandler(this);
+        teamHandler = new TeamHandler(this);
 
         int port = configHandler.getConfig("settings").getInt("port");
         String host = configHandler.getConfig("settings").getString("host");
@@ -81,6 +84,7 @@ public final class Dduels extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         getServer().getPluginManager().registerEvents(new JoinOrQuitListener(this), this);
         getServer().getPluginManager().registerEvents(new SpectatorListener(this), this);
+        getServer().getPluginManager().registerEvents(new HitListener(this), this);
         FastInvManager.register(this);
 
     }
@@ -119,6 +123,10 @@ public final class Dduels extends JavaPlugin {
 
     public SpectatorHandler getSpectatorHandler() {
         return spectatorHandler;
+    }
+
+    public TeamHandler getTeamHandler() {
+        return teamHandler;
     }
 
     public PartyManager getPartyManager() {

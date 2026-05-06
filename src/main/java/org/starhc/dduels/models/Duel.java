@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.starhc.dduels.Dduels;
+import org.starhc.dduels.enums.DuelType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Duel {
-
     private Dduels plugin;
     private DuelSession session;
     private List<Player> players;
@@ -25,18 +25,21 @@ public class Duel {
     private List<Player> spectators = new ArrayList<>();
     private List<Player> deads = new ArrayList<>();
     private Map<Player, Spawn> playersSpawns = new HashMap<>();
+    private DuelType duelType;
+
+    private List<Player> teamA;
+    private List<Player> teamB;
 
     public Duel(Dduels plugin, DuelSession session) {
         this.plugin = plugin;
         this.session = session;
 
-        this.players = new ArrayList<>(session.getEnemies());
-        players.add(session.getSender());
+        this.players = new ArrayList<>(session.getAllPlayers());
         this.mapTemplate = session.getSelectedMapTemplate().get();
         this.kit = session.getSelectedKit().get();
+        this.duelType = session.getDuelType();
 
         this.alivePlayers = new ArrayList<>(List.copyOf(players));
-
     }
 
     public List<Player> getPlayers() {
@@ -55,6 +58,22 @@ public class Duel {
         return spectators;
     }
 
+    public List<Player> getTeamA() {
+        return teamA;
+    }
+
+    public List<Player> getTeamB() {
+        return teamB;
+    }
+
+    public List<Player> getPlayerTeam(Player player) {
+        if (teamA.contains(player)) {
+            return teamA;
+        } else {
+            return teamB;
+        }
+    }
+
     public MapTemplate getMapTemplate() {
         return mapTemplate;
     }
@@ -63,17 +82,27 @@ public class Duel {
         return kit;
     }
 
+    public DuelType getDuelType() {
+        return duelType;
+    }
+
     public void init() {
         for (Player player : players) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("loading-duel"));
         }
 
-        this.world = plugin.getWorldsHandler().createWorldFromTemplate(mapTemplate.getTemplateName());
+        world = plugin.getWorldsHandler().createWorldFromTemplate(mapTemplate.getTemplateName());
         Bukkit.getScheduler().runTaskLater(plugin, this::start, 20 * 3L);
 
     }
 
     public void start() {
+        if (duelType.equals(DuelType.SPLIT)) {
+            teamA = new ArrayList<>(session.getTeamA());
+            teamB = new ArrayList<>(session.getTeamB());
+            plugin.getTeamHandler().applyDuelTeamName(players, teamA, teamB);
+        }
+
         if (playersSpawns.isEmpty()) {
             Map<Integer, Spawn> spawns = mapTemplate.getSpawns();
             for (int i = 0; i < players.size(); i++) {
@@ -100,18 +129,20 @@ public class Duel {
 
     }
 
-    public void stop(Player winner) {
+    public void manageWinners(List<Player> winners) {
         for (Player player : players) {
-            if (player == winner) {
+            if (winners.contains(player)) {
                 player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-win"));
                 plugin.getStatsHandler().addWin(player);
-            } else if (deads.contains(player)) {
+            } else if (deads.contains(player) && !winners.contains(player)) {
                 player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-lose"));
                 plugin.getStatsHandler().addLoss(player);
             }
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
         }
+    }
 
+    public void stop() {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             Location playerSpawn = Bukkit.getWorlds().getFirst().getSpawnLocation();
 
@@ -125,14 +156,13 @@ public class Duel {
                     player.setGameMode(GameMode.ADVENTURE);
                     player.setAllowFlight(true);
                     player.setHealth(20);
+                    plugin.getTeamHandler().resetPlayersNames(player);
                 });
-
             }
 
             plugin.getWorldsHandler().deleteWorld(world);
             plugin.getDuelHandler().deleteDuel(this);
         }, 20 * 5L);
-
     }
 
     public void kill(Player killed, Player killer) {
@@ -187,9 +217,19 @@ public class Duel {
     }
 
     public void checkForDuelEnd() {
-        if (alivePlayers.size() == 1) {
-            stop(alivePlayers.getFirst());
+        if (duelType.equals(DuelType.SPLIT)) {
+            if (teamA.stream().filter(alivePlayers::contains).toList().isEmpty() || teamB.stream().filter(alivePlayers::contains).toList().isEmpty()) {
+                manageWinners(getPlayerTeam(alivePlayers.getFirst()));
+                stop();
+            }
+
+        } else {
+            if (alivePlayers.size() == 1) {
+                manageWinners(List.of(alivePlayers.getFirst()));
+                stop();
+            }
         }
+
 
     }
 
@@ -234,7 +274,10 @@ public class Duel {
     }
 
     public void stopSpectating(Player spectator) {
-        players.remove(spectator);
+        if (!deads.contains(spectator)) {
+            players.remove(spectator);
+        }
+
         spectators.remove(spectator);
 
         Location playerSpawn = Bukkit.getWorlds().getFirst().getSpawnLocation();
@@ -244,6 +287,8 @@ public class Duel {
             spectator.setFlying(true);
 
         });
+
+        plugin.getTeamHandler().resetPlayersNames(spectator);
         prepareInventoryLobby(spectator);
 
         spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));

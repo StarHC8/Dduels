@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.starhc.dduels.Dduels;
+import org.starhc.dduels.enums.DuelType;
 import org.starhc.dduels.models.DuelSession;
 import org.starhc.dduels.models.Kit;
 import org.starhc.dduels.ui.DuelUi;
@@ -48,12 +49,22 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (plugin.getPartyHandler().getParty(player) != null) {
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("party.cant-in-party"));
+            return true;
+        }
+
+        if (plugin.getPartyHandler().getParty(target) != null) {
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("party.enemy-in-party"));
+            return true;
+        }
+
         if (plugin.getMapTemplateHandler().getMapTemplates().isEmpty()) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("system-errors.no-map-templates"));
             return true;
         }
 
-        DuelSession session = new DuelSession(player, List.of(target));
+        DuelSession session = new DuelSession(player, List.of(player, target));
 
         session.setSelectedMapTemplate(plugin.getMapTemplateHandler().getMapTemplates().getFirst());
 
@@ -61,6 +72,8 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
         if (!playerKits.isEmpty()) {
             session.setSelectedKit(playerKits.getFirst());
         }
+
+        session.setDuelType(DuelType.FFA);
 
         new DuelUi(plugin, session).open(player);
         return true;

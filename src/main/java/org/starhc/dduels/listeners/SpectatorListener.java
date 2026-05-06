@@ -24,16 +24,6 @@ public class SpectatorListener implements Listener {
     }
 
     @EventHandler
-    public void onHit(EntityDamageByEntityEvent event) {
-        if (event.getEntity() instanceof Player player && event.getDamager() instanceof Player damager) {
-            Duel duel = plugin.getDuelHandler().getSpectatingDuel(damager);
-            if (duel != null) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Action action = event.getAction();

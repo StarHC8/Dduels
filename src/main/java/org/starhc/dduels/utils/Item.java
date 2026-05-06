@@ -121,5 +121,4 @@ public class Item {
         return clicked.getItemMeta().getDisplayName().equalsIgnoreCase(message);
     }
 
-
 }

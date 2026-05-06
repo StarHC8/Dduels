@@ -5,12 +5,14 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.starhc.dduels.Dduels;
+import org.starhc.dduels.enums.DuelType;
 import org.starhc.dduels.models.DuelSession;
 import org.starhc.dduels.models.MapTemplate;
 import org.starhc.dduels.utils.Item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class DuelUi extends FastInv {
 
@@ -29,6 +31,7 @@ public class DuelUi extends FastInv {
         }
 
         setupItems();
+
     }
 
     private void setupItems() {
@@ -49,9 +52,39 @@ public class DuelUi extends FastInv {
                     session.getSender().closeInventory();
                 });
 
-        setItem(22, Item.createPlayerHead(session.getEnemies().getFirst().getName(), 1,
-                plugin.getConfigHandler().getMessageFromConfig("items-names.enemy-item")
-                        .replace("[player]", session.getEnemies().getFirst().getName())));
+
+        if (session.getAllPlayers().size() == 2) {
+            String enemyName = session.getAllPlayers().stream().filter(player -> !player.equals(session.getSender())).findFirst().get().getName();
+
+            setItem(22, Item.createPlayerHead(enemyName, 1,
+                    plugin.getConfigHandler().getMessageFromConfig("items-names.enemy-item")
+                            .replace("[player]", enemyName)));
+
+        } else {
+            boolean isFfa = session.getDuelType().equals(DuelType.FFA);
+
+            String duelTypeItemName = "§r" + plugin.getConfigHandler().getMessageFromConfig("items-names.duel-type-item")
+                    .replace("[type]", (isFfa) ? "FFA" : "SPLIT");
+
+            setItem(12, Item.create((isFfa) ? Material.REDSTONE_BLOCK : Material.LAPIS_BLOCK,
+                    1,
+                    duelTypeItemName), event -> {
+
+                DuelType newDuelType = (isFfa) ? DuelType.SPLIT : DuelType.FFA;
+                session.setDuelType(newDuelType);
+                setupItems();
+            });
+
+            if (!isFfa) {
+                setItem(22, Item.create(Material.BLUE_BANNER, 1,
+                        plugin.getConfigHandler().getMessageFromConfig("items-names.team-manager")), event -> {
+                    new TeamManagerUi(plugin, session).open(session.getSender());
+                });
+            } else {
+                setItem(22, null);
+            }
+
+        }
 
         MapTemplate currentMap = session.getSelectedMapTemplate().get();
         setItem(4, Item.create(Material.GRASS_BLOCK, 1,
@@ -64,14 +97,16 @@ public class DuelUi extends FastInv {
                         "§r" + plugin.getConfigHandler().getMessageFromConfig("items-names.kit-selector")
                                 .replace("[kit]", kitDisplay)),
                 event -> new KitSelectorUi(plugin, session).open(session.getSender()));
+
+
     }
 
     private void sendDuelRequest() {
-        List<Player> allPlayers = new ArrayList<>(session.getEnemies());
-        allPlayers.add(session.getSender());
+        List<Player> allPlayers = session.getAllPlayers();
 
-        if (allPlayers.size() == 2) {
-            plugin.getRequestHandler().sendRequest(session.getSender(), session.getEnemies().getFirst(), session);
+        if (allPlayers.size() == 2 && plugin.getPartyHandler().getParty(session.getSender()) == null) {
+            Player enemy = allPlayers.stream().filter(player -> !player.equals(session.getSender())).findFirst().get();
+            plugin.getRequestHandler().sendRequest(session.getSender(), enemy, session);
         } else {
             plugin.getDuelHandler().newDuel(session);
         }

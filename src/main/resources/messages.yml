@@ -7,6 +7,7 @@ messages:
   self-spectate: "§cYou cannot spectate yourself."
   not-duelled: "§cYou do not have a duel request from this player."
   player-already-in-duel: "§cCan't start: A player is already in a duel."
+  empty-team: "§cCan't start: There is an empty team."
   player-not-in-duel: "§cThis player isn't in a duel."
   not-in-duel: "§cYou aren't in a duel."
   not-a-spectator: "§cYou aren't a spectator."
@@ -21,7 +22,6 @@ messages:
     map: "§e● Map: [map]"
     kit: "§e● Kit: [kit]"
     accept: "§bUse §3/duelaccept [player] §bto accept."
-
 
   expired-request-to: "§cDuel request to §9[player] §cexpired."
   expired-request-from: "§cDuel request from §9[player] §cexpired."
@@ -46,6 +46,8 @@ messages:
 
   party:
     not-enough-players: "§cThis party doesn't have enough players to start a party duel."
+    cant-in-party: "§cYou can't do this in party."
+    enemy-in-party: "§cYour enemy is in party."
     party-not-available: "§cPartyManager isn't available! Contact system administrator."
 
   ui-names:
@@ -53,6 +55,7 @@ messages:
     map-selector: "Map Selector"
     kit-selector: "Kit Selector"
     kit-creator: "Kit Creator"
+    team-manager: "Team Manager"
 
     stats: "Stats: [player]"
     spect-navigator: "Navigator"
@@ -67,6 +70,8 @@ messages:
     enemy-item: "§dEnemy: §n[player]"
     map-selector: "Map: [map]"
     kit-selector: "Kit: [kit]"
+    team-manager: "§rTeam Manager"
+    duel-type-item: "Duel Type: §n[type]"
 
     helmet-slot: "§bHelmet Slot"
     chestplate-slot: "§bChestplate Slot"
@@ -84,6 +89,10 @@ messages:
     fly-speed-item: "§b§nFly speed"
     spect-navigator-item: "§eNavigator"
     stop-spectating-item: "§c§nGo back to lobby"
+
+    team-manager-guide-item: "&7Guide"
+    team-manager-guide-lore: "The two side are how the players \nwill be split across the teams. \nMove the players as you want."
+    team-manager-shuffle-item: "§6Shuffle Teams"
 
   system-errors:
     no-map-templates: "§cNo Map Templates found! Contact system administrator."

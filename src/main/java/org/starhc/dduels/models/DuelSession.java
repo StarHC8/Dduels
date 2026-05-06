@@ -1,6 +1,7 @@
 package org.starhc.dduels.models;
 
 import org.bukkit.entity.Player;
+import org.starhc.dduels.enums.DuelType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,25 +9,39 @@ import java.util.Optional;
 
 public class DuelSession {
     private final Player sender;
-    private final List<Player> enemies;
+    private List<Player> teamA;
+    private List<Player> teamB;
     private MapTemplate selectedMapTemplate;
     private Kit selectedKit;
+    private DuelType duelType;
     private List<Player> allPlayers;
 
-    public DuelSession(Player sender, List<Player> enemies) {
+    public DuelSession(Player sender, List<Player> allPlayers) {
         this.sender = sender;
-        this.enemies = enemies;
-        allPlayers = new ArrayList<>(enemies);
-        allPlayers.add(sender);
+        this.allPlayers = allPlayers;
 
+        this.teamA = new ArrayList<>(allPlayers.subList(0, allPlayers.size() / 2));
+        this.teamB = new ArrayList<>(allPlayers.subList(allPlayers.size() / 2, allPlayers.size()));
     }
 
     public Player getSender() {
         return sender;
     }
 
-    public List<Player> getEnemies() {
-        return enemies;
+    public List<Player> getTeamA() {
+        return teamA;
+    }
+
+    public List<Player> getTeamB() {
+        return teamB;
+    }
+
+    public void setTeamA(List<Player> teamA) {
+        this.teamA = teamA;
+    }
+
+    public void setTeamB(List<Player> teamB) {
+        this.teamB = teamB;
     }
 
     public List<Player> getAllPlayers() {
@@ -49,7 +64,12 @@ public class DuelSession {
         this.selectedKit = selectedKit;
     }
 
-    public boolean isReady() {
-        return selectedMapTemplate != null && selectedKit != null;
+    public DuelType getDuelType() {
+        return duelType;
     }
+
+    public void setDuelType(DuelType duelType) {
+        this.duelType = duelType;
+    }
+
 }
