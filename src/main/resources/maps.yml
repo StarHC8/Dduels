@@ -7,18 +7,22 @@ maps:
         x: 2
         y: 101
         z: 0
+        yaw: -135
       2:
         x: 27
         y: 101
         z: -25
+        yaw: 45
       3:
         x: 2
         y: 101
         z: -25
+        yaw: -45
       4:
         x: 27
         y: 101
         z: 0
+        yaw: 135
   1:
     world: "sand" # The template world folder name
     name: "Sand World" # The template display name
@@ -27,19 +31,24 @@ maps:
         x: 2
         y: 101
         z: 0
+        yaw: -135
       2:
         x: 27
         y: 101
         z: -25
+        yaw: 45
       3:
         x: 2
         y: 101
         z: -25
+        yaw: -45
       4:
         x: 27
         y: 101
         z: 0
+        yaw: 135
       5:
         x: 14
         y: 101
         z: -14
+        yaw: 0

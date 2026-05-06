@@ -58,7 +58,8 @@ public class MapTemplateHandler {
                 Spawn spawn = new Spawn(
                         mapsConfig.getDouble("maps." + mapId + ".spawns." + spawnId + ".x"),
                         mapsConfig.getDouble("maps." + mapId + ".spawns." + spawnId + ".y"),
-                        mapsConfig.getDouble("maps." + mapId + ".spawns." + spawnId + ".z")
+                        mapsConfig.getDouble("maps." + mapId + ".spawns." + spawnId + ".z"),
+                        mapsConfig.getDouble("maps." + mapId + ".spawns." + spawnId + ".yaw")
                 );
 
                 try {

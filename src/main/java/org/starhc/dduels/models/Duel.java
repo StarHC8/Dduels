@@ -249,7 +249,9 @@ public class Duel {
                 world,
                 spawn.getX(),
                 spawn.getY(),
-                spawn.getZ());
+                spawn.getZ(),
+                spawn.getYaw(),
+                0);
 
         player.teleport(playerSpawn);
 
