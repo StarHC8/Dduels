@@ -1,5 +1,7 @@
 package org.starhc.dduels.models;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Duel {
     private Dduels plugin;
@@ -119,6 +122,8 @@ public class Duel {
         }
 
         for (Player player : players) {
+
+            sendDuelInfo(player);
             prepareInventoryDuel(player);
             teleportPlayerDuel(player);
             player.setGameMode(GameMode.SURVIVAL);
@@ -130,15 +135,28 @@ public class Duel {
     }
 
     public void manageWinners(List<Player> winners) {
+        String winner;
+        if (duelType.equals(DuelType.SPLIT)) {
+            winner = plugin.getConfigHandler().getMessageFromConfig("results.winning-team") + getPlayerTeam(alivePlayers.getFirst()).stream()
+                    .map(Player::getName)
+                    .collect(Collectors.joining(", "));
+        } else {
+            winner = plugin.getConfigHandler().getMessageFromConfig("results.winner") + alivePlayers.getFirst().getName();
+        }
+
         for (Player player : players) {
             if (winners.contains(player)) {
-                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-win"));
                 plugin.getStatsHandler().addWin(player);
             } else if (deads.contains(player) && !winners.contains(player)) {
-                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-lose"));
                 plugin.getStatsHandler().addLoss(player);
             }
+
+            player.sendMessage(" ");
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("results.end"));
+            player.sendMessage(winner);
+            player.sendMessage(" ");
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
+
         }
     }
 
@@ -166,12 +184,17 @@ public class Duel {
     }
 
     public void kill(Player killed, Player killer) {
+        if (killed.equals(killer)) {
+            death(killed);
+            return;
+        }
+
         alivePlayers.remove(killed);
 
         for (Player player : players) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-killed-player")
-                    .replace("[killer]", killer.getName())
-                    .replace("[killed]", killed.getName()));
+                    .replace("[killer]", getPlayerDisplayName(killer) + "§e")
+                    .replace("[killed]", getPlayerDisplayName(killed) + "§e"));
         }
 
         deads.add(killed);
@@ -294,6 +317,32 @@ public class Duel {
         prepareInventoryLobby(spectator);
 
         spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
+    }
+
+    public void sendDuelInfo(Player player) {
+        String duelTypeName = (duelType.equals(DuelType.FFA)) ? "Ffa" : "Split";
+        String mapName = session.getSelectedMapTemplate().get().getTemplateDisplayName();
+        String kitName = "[" + session.getSelectedKit().get().getSlot() + "]";
+
+        player.sendMessage(" ");
+        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.start"));
+        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.type").replace("[type]", duelTypeName));
+
+        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.map")
+                .replace("[map]", mapName));
+
+        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.kit")
+                .replace("[kit]", kitName));
+        player.sendMessage(" ");
+
+    }
+
+    public String getPlayerDisplayName(Player player) {
+        if (duelType.equals(DuelType.FFA)) {
+            return player.getName();
+        } else {
+            return ((getPlayerTeam(player).equals(teamA)) ? "§c" : "§9") + player.getName();
+        }
     }
 
 

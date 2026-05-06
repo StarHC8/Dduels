@@ -16,17 +16,30 @@ messages:
   kit-unsaved: "§cYou didn't save the kit."
   kit-deleted: "§aKit deleted successfully."
 
-  request-sent: "§bYou sended a duel request to §9[player] §b. The request will expire in 60 seconds."
-  request-received:
-    received: "§bYou received a duel request from §9[player]§b:"
-    map: "§e● Map: [map]"
-    kit: "§e● Kit: [kit]"
-    accept: "§bUse §3/duelaccept [player] §bto accept."
+  request:
+    sent: "§b§lSent duel request"
+    received: "§b§lReceived duel request"
+    to: " §b● To: §e[player]"
+    from: " §b● From: §e[player]"
+    map: " §b● Map: §e[map]"
+    kit: " §b● Kit: §e[kit]"
+    accept: "§b§l(CLICK HERE TO ACCEPT)"
+
+  duel:
+    start: "§b§lStarting duel"
+    type: " §b● Type: §e[type]"
+    map: " §b● Map: §e[map]"
+    kit: " §b● Kit: §e[kit]"
+
+  results:
+    end: "§b§lDuel Result"
+    winner: "§aWinner: §e"
+    winning-team: "§aWinning Team: §e"
 
   expired-request-to: "§cDuel request to §9[player] §cexpired."
   expired-request-from: "§cDuel request from §9[player] §cexpired."
 
-  accepted-request-to: "§bYou accepted the duel request from §9[player] §b!"
+  accepted-request-to: "§bYou accepted the duel request from §9[player]§b!"
   accepted-request-from: "§9[player]§b accepted your duel request!"
 
   duel-win: "§6You won the match. Congratulations!"
