@@ -97,24 +97,24 @@ public class Duel {
     }
 
     public void start() {
+        Map<Integer, Spawn> spawns = mapTemplate.getSpawns();
+
         if (duelType.equals(DuelType.SPLIT)) {
             teamA = new ArrayList<>(session.getTeamA());
             teamB = new ArrayList<>(session.getTeamB());
             plugin.getTeamHandler().applyDuelTeamName(players, teamA, teamB);
-        }
 
-        if (playersSpawns.isEmpty()) {
-            Map<Integer, Spawn> spawns = mapTemplate.getSpawns();
+            for (int i = 0; i < teamA.size(); i++) {
+                playersSpawns.put(teamA.get(i), spawns.get(1));
+            }
+
+            for (int i = 0; i < teamB.size(); i++) {
+                playersSpawns.put(teamB.get(i), spawns.get(2));
+            }
+
+        } else {
             for (int i = 0; i < players.size(); i++) {
                 playersSpawns.put(players.get(i), spawns.get((i % spawns.size()) + 1));
-            }
-            if (spawns.isEmpty()) {
-                for (Player player : players) {
-                    player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("system-errors.no-map-spawns"));
-                }
-                plugin.getWorldsHandler().deleteWorld(world);
-                plugin.getDuelHandler().deleteDuel(this);
-                return;
             }
         }
 
