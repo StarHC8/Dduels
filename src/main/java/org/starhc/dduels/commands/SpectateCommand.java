@@ -17,7 +17,10 @@ import java.util.stream.Collectors;
 
 public class SpectateCommand implements CommandExecutor, TabCompleter {
     private Dduels plugin;
-    public SpectateCommand(Dduels plugin) { this.plugin = plugin; }
+
+    public SpectateCommand(Dduels plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -60,7 +63,7 @@ public class SpectateCommand implements CommandExecutor, TabCompleter {
             }
 
             Duel targetDuel = plugin.getDuelHandler().getDuel(target);
-            if (targetDuel == null) {
+            if (targetDuel == null || !targetDuel.isActive()) {
                 player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-not-in-duel"));
                 return false;
             }

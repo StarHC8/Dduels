@@ -8,7 +8,10 @@ import java.util.*;
 
 public class DuelHandler {
     private Dduels plugin;
-    public DuelHandler(Dduels plugin) { this.plugin = plugin; }
+
+    public DuelHandler(Dduels plugin) {
+        this.plugin = plugin;
+    }
 
     private List<Duel> activeDuels = new ArrayList<>();
 
@@ -57,7 +60,6 @@ public class DuelHandler {
     public void deleteDuel(Duel duel) {
         activeDuels.remove(duel);
     }
-
 
 
 }

@@ -33,8 +33,8 @@ messages:
 
   results:
     end: "§b§lDuel Result"
-    winner: "§aWinner: §e"
-    winning-team: "§aWinning Team: §e"
+    winner: " §aWinner: §e"
+    winning-team: " §aWinning Team: §e"
 
   expired-request-to: "§cDuel request to §9[player] §cexpired."
   expired-request-from: "§cDuel request from §9[player] §cexpired."
@@ -50,10 +50,10 @@ messages:
   going-lobby: "§eSending you to the lobby..."
   start-spectating: "§bYou're now spectating the §9[player]§b's duel."
 
-  player-left-duel: "§c[player] left the duel."
+  player-left-duel: "§d[player]§e left the duel."
   you-left-duel: "§cYou left the duel."
-  player-killed-player: "§d[killer] killed [killed]."
-  player-died: "§d[player] died."
+  player-killed-player: "§d[killer]§e killed §d[killed]§e."
+  player-died: "§d[player]§e died."
 
   never-played: "§cThis player hasn't any stats."
 
@@ -80,11 +80,11 @@ messages:
     cancel-item: "§cCancel"
     save-item: "§aSave"
     destroy-item: "§4Destroy Item"
-    enemy-item: "§dEnemy: §n[player]"
-    map-selector: "Map: [map]"
-    kit-selector: "Kit: [kit]"
+    enemy-item: "§fEnemy: §e[player]"
+    map-selector: "Map: §e[map]"
+    kit-selector: "Kit: §e[kit]"
     team-manager: "§rTeam Manager"
-    duel-type-item: "Duel Type: §n[type]"
+    duel-type-item: "Duel Type: §e[type]"
 
     helmet-slot: "§bHelmet Slot"
     chestplate-slot: "§bChestplate Slot"
@@ -100,7 +100,7 @@ messages:
     go-back-item: "&7Go back"
 
     fly-speed-item: "§b§nFly speed"
-    spect-navigator-item: "§eNavigator"
+    spect-navigator-item: "§e§nNavigator"
     stop-spectating-item: "§c§nGo back to lobby"
 
     team-manager-guide-item: "&7Guide"
@@ -111,6 +111,7 @@ messages:
     no-map-templates: "§cNo Map Templates found! Contact system administrator."
     no-map-spawns: "§cNo spawns defined for this map template! Contact system administrator."
     no-kit-available: "§cNo Kit Available. Create one first."
+    world-error: "§cCan't load world. Contact system administrator."
 
   commands-correct-use:
     duel: "§cUsage: /duel <player>"

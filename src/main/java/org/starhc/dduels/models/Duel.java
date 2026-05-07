@@ -29,6 +29,7 @@ public class Duel {
     private List<Player> deads = new ArrayList<>();
     private Map<Player, Spawn> playersSpawns = new HashMap<>();
     private DuelType duelType;
+    private boolean isActive = false;
 
     private List<Player> teamA;
     private List<Player> teamB;
@@ -89,17 +90,29 @@ public class Duel {
         return duelType;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
     public void init() {
         for (Player player : players) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("loading-duel"));
         }
 
         world = plugin.getWorldsHandler().createWorldFromTemplate(mapTemplate.getTemplateName());
+        if (world == null) {
+            for (Player player : players) {
+                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("system-errors.world-error"));
+            }
+            plugin.getDuelHandler().deleteDuel(this);
+            return;
+        }
         Bukkit.getScheduler().runTaskLater(plugin, this::start, 20 * 3L);
 
     }
 
     public void start() {
+        isActive = true;
         Map<Integer, Spawn> spawns = mapTemplate.getSpawns();
 
         if (duelType.equals(DuelType.SPLIT)) {
@@ -193,8 +206,8 @@ public class Duel {
 
         for (Player player : players) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-killed-player")
-                    .replace("[killer]", getPlayerDisplayName(killer) + "§e")
-                    .replace("[killed]", getPlayerDisplayName(killed) + "§e"));
+                    .replace("[killer]", getPlayerDisplayName(killer))
+                    .replace("[killed]", getPlayerDisplayName(killed)));
         }
 
         deads.add(killed);
@@ -208,7 +221,7 @@ public class Duel {
         alivePlayers.remove(dead);
 
         for (Player player : players) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-died").replace("[player]", dead.getName()));
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-died").replace("[player]", getPlayerDisplayName(dead)));
         }
 
         deads.add(dead);
@@ -244,12 +257,14 @@ public class Duel {
             if (teamA.stream().filter(alivePlayers::contains).toList().isEmpty() || teamB.stream().filter(alivePlayers::contains).toList().isEmpty()) {
                 manageWinners(getPlayerTeam(alivePlayers.getFirst()));
                 stop();
+                isActive = false;
             }
 
         } else {
             if (alivePlayers.size() == 1) {
                 manageWinners(List.of(alivePlayers.getFirst()));
                 stop();
+                isActive = false;
             }
         }
 

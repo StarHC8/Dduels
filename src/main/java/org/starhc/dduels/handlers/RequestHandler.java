@@ -48,7 +48,7 @@ public class RequestHandler {
                 .replace("[map]", mapName));
 
         receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.kit")
-                        .replace("[kit]", kitName));
+                .replace("[kit]", kitName));
 
         receiver.sendMessage(Component.text(plugin.getConfigHandler().getMessageFromConfig("request.accept"))
                 .clickEvent(ClickEvent.runCommand("/duelaccept " + sender.getName())));
@@ -57,7 +57,7 @@ public class RequestHandler {
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (pendingRequests.containsKey(receiver.getUniqueId()) &&
-                pendingRequests.get(receiver.getUniqueId()).getSender().equals(sender.getUniqueId())) {
+                    pendingRequests.get(receiver.getUniqueId()).getSender().equals(sender.getUniqueId())) {
                 pendingRequests.remove(receiver.getUniqueId());
                 sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-to").replace("[player]", receiver.getName()));
                 receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-from").replace("[player]", sender.getName()));

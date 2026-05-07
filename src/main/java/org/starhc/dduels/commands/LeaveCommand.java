@@ -14,7 +14,10 @@ import java.util.List;
 
 public class LeaveCommand implements CommandExecutor, TabCompleter {
     private Dduels plugin;
-    public LeaveCommand(Dduels plugin) { this.plugin = plugin; }
+
+    public LeaveCommand(Dduels plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -22,12 +25,12 @@ public class LeaveCommand implements CommandExecutor, TabCompleter {
         Player player = (Player) sender;
 
         Duel duel = plugin.getDuelHandler().getDuel(player);
-        if (duel != null) {
-            duel.leave(player);
-        } else {
+        if (duel == null || !duel.isActive()) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("not-in-duel"));
+            return true;
         }
 
+        duel.leave(player);
         return true;
     }
 

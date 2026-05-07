@@ -104,7 +104,12 @@ public class DuelUi extends FastInv {
     private void sendDuelRequest() {
         List<Player> allPlayers = session.getAllPlayers();
 
-        if (allPlayers.size() == 2 && plugin.getPartyHandler().getParty(session.getSender()) == null) {
+        boolean isInParty = false;
+        if (plugin.getPartyManager() != null) {
+            isInParty = plugin.getPartyHandler().getParty(session.getSender()) != null;
+        }
+
+        if (allPlayers.size() == 2 && !isInParty) {
             Player enemy = allPlayers.stream().filter(player -> !player.equals(session.getSender())).findFirst().get();
             plugin.getRequestHandler().sendRequest(session.getSender(), enemy, session);
         } else {

@@ -24,12 +24,10 @@ public class ConfigHandler {
     }
 
     public void loadConfigs() {
-        plugin.saveDefaultConfig();
         saveDefaultConfig("messages.yml");
         saveDefaultConfig("maps.yml");
         saveDefaultConfig("settings.yml");
 
-        configs.put("config", plugin.getConfig());
         loadConfig("messages.yml");
         loadConfig("maps.yml");
         loadConfig("settings.yml");

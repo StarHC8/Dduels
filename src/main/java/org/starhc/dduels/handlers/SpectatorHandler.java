@@ -55,6 +55,7 @@ public class SpectatorHandler {
         player.setSaturation(20);
 
         player.removePotionEffect(PotionEffectType.INVISIBILITY);
+        player.setFlySpeed(0.1f);
 
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (online.getUniqueId().equals(player.getUniqueId())) continue;
