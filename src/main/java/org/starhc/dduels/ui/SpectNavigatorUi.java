@@ -30,7 +30,7 @@ public class SpectNavigatorUi extends PaginatedFastInv {
         nextPageItem(41, p -> Item.create(Material.ARROW, 1, "Page " + p + "/" + lastPage()));
 
         for (Player player : duel.getAlivePlayers()) {
-            addContent(Item.createPlayerHead(player.getName(), 1, player.getName()), event -> {
+            addContent(Item.createPlayerHead(player.getName(), 1, "§f" + player.getName()), event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 clicker.teleport(player.getLocation());
             });

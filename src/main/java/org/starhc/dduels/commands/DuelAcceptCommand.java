@@ -19,7 +19,10 @@ import java.util.stream.Collectors;
 public class DuelAcceptCommand implements CommandExecutor, TabCompleter {
 
     private Dduels plugin;
-    public DuelAcceptCommand(Dduels plugin) { this.plugin = plugin; }
+
+    public DuelAcceptCommand(Dduels plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

@@ -90,10 +90,18 @@ public class KitCreatorUi extends PaginatedFastInv {
             } else {
                 String name = "";
                 switch (slot) {
-                    case SLOT_HELMET: name = plugin.getConfigHandler().getMessageFromConfig("items-names.helmet-slot"); break;
-                    case SLOT_CHESTPLATE: name = plugin.getConfigHandler().getMessageFromConfig("items-names.chestplate-slot"); break;
-                    case SLOT_LEGGINGS: name = plugin.getConfigHandler().getMessageFromConfig("items-names.leggings-slot"); break;
-                    case SLOT_BOOTS: name = plugin.getConfigHandler().getMessageFromConfig("items-names.boots-slot"); break;
+                    case SLOT_HELMET:
+                        name = plugin.getConfigHandler().getMessageFromConfig("items-names.helmet-slot");
+                        break;
+                    case SLOT_CHESTPLATE:
+                        name = plugin.getConfigHandler().getMessageFromConfig("items-names.chestplate-slot");
+                        break;
+                    case SLOT_LEGGINGS:
+                        name = plugin.getConfigHandler().getMessageFromConfig("items-names.leggings-slot");
+                        break;
+                    case SLOT_BOOTS:
+                        name = plugin.getConfigHandler().getMessageFromConfig("items-names.boots-slot");
+                        break;
                 }
                 setItem(slot, Item.create(Material.ARMOR_STAND, 1, name));
             }
@@ -251,7 +259,8 @@ public class KitCreatorUi extends PaginatedFastInv {
                     if (selectedIndex[0] == 0) {
                         Material nextMaterial = Material.POTION;
                         if (itemStack.getType() == Material.POTION) nextMaterial = Material.SPLASH_POTION;
-                        else if (itemStack.getType() == Material.SPLASH_POTION) nextMaterial = Material.LINGERING_POTION;
+                        else if (itemStack.getType() == Material.SPLASH_POTION)
+                            nextMaterial = Material.LINGERING_POTION;
 
                         itemStack.setType(nextMaterial);
                     } else {
@@ -282,7 +291,7 @@ public class KitCreatorUi extends PaginatedFastInv {
                         clone.setItemMeta(cloneMeta);
                     }
                     event.getWhoClicked().getInventory().addItem(clone);
-                    
+
                     itemStack.setType(Material.POTION);
                     PotionMeta resetMeta = (PotionMeta) itemStack.getItemMeta();
                     if (resetMeta != null) {
@@ -341,10 +350,16 @@ public class KitCreatorUi extends PaginatedFastInv {
     private PotionType getBaseType(PotionType type) {
         String name = type.name();
         if (name.startsWith("STRONG_")) {
-            try { return PotionType.valueOf(name.substring(7)); } catch (Exception ignored) {}
+            try {
+                return PotionType.valueOf(name.substring(7));
+            } catch (Exception ignored) {
+            }
         }
         if (name.startsWith("LONG_")) {
-            try { return PotionType.valueOf(name.substring(5)); } catch (Exception ignored) {}
+            try {
+                return PotionType.valueOf(name.substring(5));
+            } catch (Exception ignored) {
+            }
         }
         return type;
     }
@@ -412,11 +427,21 @@ public class KitCreatorUi extends PaginatedFastInv {
             if (cursor != null && cursor.getType() != Material.AIR) {
                 boolean valid = false;
                 switch (eventSlot) {
-                    case SLOT_HELMET: valid = cursor.getType().name().endsWith("_HELMET"); break;
-                    case SLOT_CHESTPLATE: valid = cursor.getType().name().endsWith("_CHESTPLATE"); break;
-                    case SLOT_LEGGINGS: valid = cursor.getType().name().endsWith("_LEGGINGS"); break;
-                    case SLOT_BOOTS: valid = cursor.getType().name().endsWith("_BOOTS"); break;
-                    case SLOT_OFFHAND: valid = true; break;
+                    case SLOT_HELMET:
+                        valid = cursor.getType().name().endsWith("_HELMET");
+                        break;
+                    case SLOT_CHESTPLATE:
+                        valid = cursor.getType().name().endsWith("_CHESTPLATE");
+                        break;
+                    case SLOT_LEGGINGS:
+                        valid = cursor.getType().name().endsWith("_LEGGINGS");
+                        break;
+                    case SLOT_BOOTS:
+                        valid = cursor.getType().name().endsWith("_BOOTS");
+                        break;
+                    case SLOT_OFFHAND:
+                        valid = true;
+                        break;
                 }
 
                 if (!valid) {
@@ -429,11 +454,21 @@ public class KitCreatorUi extends PaginatedFastInv {
                     event.setCancelled(false);
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         switch (eventSlot) {
-                            case SLOT_HELMET: setItem(eventSlot, Item.create(Material.ARMOR_STAND, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.helmet-slot"))); break;
-                            case SLOT_CHESTPLATE: setItem(eventSlot, Item.create(Material.ARMOR_STAND, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.chestplate-slot"))); break;
-                            case SLOT_LEGGINGS: setItem(eventSlot, Item.create(Material.ARMOR_STAND, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.leggings-slot"))); break;
-                            case SLOT_BOOTS: setItem(eventSlot, Item.create(Material.ARMOR_STAND, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.boots-slot"))); break;
-                            case SLOT_OFFHAND: setItem(eventSlot, Item.create(Material.ITEM_FRAME, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.offhand-slot"))); break;
+                            case SLOT_HELMET:
+                                setItem(eventSlot, Item.create(Material.ARMOR_STAND, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.helmet-slot")));
+                                break;
+                            case SLOT_CHESTPLATE:
+                                setItem(eventSlot, Item.create(Material.ARMOR_STAND, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.chestplate-slot")));
+                                break;
+                            case SLOT_LEGGINGS:
+                                setItem(eventSlot, Item.create(Material.ARMOR_STAND, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.leggings-slot")));
+                                break;
+                            case SLOT_BOOTS:
+                                setItem(eventSlot, Item.create(Material.ARMOR_STAND, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.boots-slot")));
+                                break;
+                            case SLOT_OFFHAND:
+                                setItem(eventSlot, Item.create(Material.ITEM_FRAME, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.offhand-slot")));
+                                break;
                         }
                     });
                 } else {

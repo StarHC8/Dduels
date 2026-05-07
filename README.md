@@ -1,25 +1,35 @@
-A simple plugin to handle duels between players on a small server.
+# Dduels
 
-It has a few commands to manage the duels:
+A simple plugin to handle duels between players on a small servers.
 
-- /duel <player> - Send a duel request with adjustable settings.
-- /duelaccept <player> - Accept a duel request you received.
+## Features
 
-You can configure every message from the messages.yml file.
+- Multi-Map support
+- Customizable kits 
+- Messages config (Unfortunately this plugin doesn't use adventure)
+- Stats (leaderboard not available yet)
+- Party duels support (with [PartyManager](https://github.com/StarHC8/PartyManager))
+
+## Commands
+
+- /duel \<player\> - Send a duel request with adjustable settings.
+- /duelaccept \<player\> - Accept a duel request you received.
+- /spectate \<player\> - Start/stop spectating a duel.
+- /leave - Leave a duel.
+- /stats \<player\> - See yours or another player's stats
+- /partyduel - Start a party duel
+
+### Warnings
+Version: Paper 1.20+
+
 This plugin require a MySQL database to work properly; use the settings.yml file to configure it.
 You also have to configure the duel worlds from the file maps.yml
 
-Commit history and next steps:
+## Next Steps
 
-- [x] Initial Commit: 01/05/2026
-- [x] Better visual requests: 01/05/2026
-- [x] Leave command: 01/05/2026
-- [x] Spectate command: 01/05/2026
-- [x] Stats system: 03/05/2026
-- [x] Party duels: 03/05/2026
-- [ ] Maybe some code improvements: ??/??/????
-- [ ] Better presentation: ??/??/????
-
-It also has party support with my very basic party plugin: [PartyManager](https://github.com/StarHC8/PartyManager).
-
-You can start a party duel with /partyduel or /pd
+- [ ] Bug fixes
+- [ ] Improve world loader
+- [ ] Improve UIs
+- [ ] Implement leaderboard
+- [ ] /rematch command
+- [ ] Adventure support?

@@ -21,7 +21,10 @@ import java.util.stream.Collectors;
 public class DuelCommand implements CommandExecutor, TabCompleter {
 
     private Dduels plugin;
-    public DuelCommand(Dduels plugin) { this.plugin = plugin; }
+
+    public DuelCommand(Dduels plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -49,14 +52,16 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (plugin.getPartyHandler().getParty(player) != null) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("party.cant-in-party"));
-            return true;
-        }
+        if (plugin.getPartyManager() != null) {
+            if (plugin.getPartyHandler().getParty(player) != null) {
+                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("party.cant-in-party"));
+                return true;
+            }
 
-        if (plugin.getPartyHandler().getParty(target) != null) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("party.enemy-in-party"));
-            return true;
+            if (plugin.getPartyHandler().getParty(target) != null) {
+                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("party.enemy-in-party"));
+                return true;
+            }
         }
 
         if (plugin.getMapTemplateHandler().getMapTemplates().isEmpty()) {

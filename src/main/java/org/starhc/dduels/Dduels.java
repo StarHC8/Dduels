@@ -63,6 +63,7 @@ public final class Dduels extends JavaPlugin {
 
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Could not connect to database!", e);
+            Bukkit.getPluginManager().disablePlugin(this);
         }
 
         if (Bukkit.getPluginManager().getPlugin("PartyManager") != null) {

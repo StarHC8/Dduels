@@ -23,8 +23,6 @@ public class MapTemplateHandler {
     private final List<MapTemplate> mapTemplates = new ArrayList<>();
 
 
-
-
     public MapTemplateHandler(Dduels plugin) {
         this.plugin = plugin;
         loadGameMapTemplates();
@@ -73,7 +71,6 @@ public class MapTemplateHandler {
             mapTemplates.add(template);
         });
     }
-
 
 
     public List<MapTemplate> getMapTemplates() {

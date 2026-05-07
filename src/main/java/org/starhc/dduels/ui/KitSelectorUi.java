@@ -29,7 +29,7 @@ public class KitSelectorUi extends PaginatedFastInv {
         nextPageItem(41, p -> Item.create(Material.ARROW, 1, "Page " + p + "/" + lastPage()));
 
         List<Kit> kits = plugin.getKitHandler().getKits(session.getSender().getUniqueId());
-        
+
         for (Kit kit : kits) {
 
             boolean isSelected = false;

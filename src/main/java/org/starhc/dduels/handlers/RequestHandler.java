@@ -1,7 +1,7 @@
 package org.starhc.dduels.handlers;
 
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.starhc.dduels.Dduels;
@@ -23,28 +23,41 @@ public class RequestHandler {
     public void sendRequest(Player sender, Player receiver, DuelSession session) {
 
         pendingRequests.put(receiver.getUniqueId(), new Request(sender.getUniqueId(), session));
-        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-sent").replace("[player]", receiver.getName()));
 
         String mapName = session.getSelectedMapTemplate().get().getTemplateDisplayName();
         String kitName = "[" + session.getSelectedKit().get().getSlot() + "]";
 
-        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-received.received")
-                .replace("[player]", sender.getName()));
-        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-received.map")
+        sender.sendMessage(" ");
+        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.sent"));
+        sender.sendMessage(Component.text(plugin.getConfigHandler().getMessageFromConfig("request.to").replace("[player]", receiver.getName()))
+                .clickEvent(ClickEvent.runCommand("/stats " + receiver.getName())));
+
+        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.map")
                 .replace("[map]", mapName));
-        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-received.kit")
+
+        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.kit")
+                .replace("[kit]", kitName));
+        sender.sendMessage(" ");
+
+        receiver.sendMessage(" ");
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.received"));
+        receiver.sendMessage(Component.text(plugin.getConfigHandler().getMessageFromConfig("request.from").replace("[player]", sender.getName()))
+                .clickEvent(ClickEvent.runCommand("/stats " + sender.getName())));
+
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.map")
+                .replace("[map]", mapName));
+
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.kit")
                 .replace("[kit]", kitName));
 
-        String acceptText = plugin.getConfigHandler().getMessageFromConfig("request-received.accept")
-                .replace("[player]", sender.getName());
+        receiver.sendMessage(Component.text(plugin.getConfigHandler().getMessageFromConfig("request.accept"))
+                .clickEvent(ClickEvent.runCommand("/duelaccept " + sender.getName())));
+        receiver.sendMessage(" ");
 
-        TextComponent acceptComponent = new TextComponent(acceptText);
-        acceptComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/duelaccept " + sender.getName()));
-        receiver.spigot().sendMessage(acceptComponent);
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (pendingRequests.containsKey(receiver.getUniqueId()) &&
-                pendingRequests.get(receiver.getUniqueId()).getSender().equals(sender.getUniqueId())) {
+                    pendingRequests.get(receiver.getUniqueId()).getSender().equals(sender.getUniqueId())) {
                 pendingRequests.remove(receiver.getUniqueId());
                 sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-to").replace("[player]", receiver.getName()));
                 receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-from").replace("[player]", sender.getName()));

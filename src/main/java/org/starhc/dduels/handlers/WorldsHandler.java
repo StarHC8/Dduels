@@ -26,7 +26,7 @@ public class WorldsHandler {
         if (!templatesFolder.exists()) {
             templatesFolder.mkdirs();
         }
-        
+
         cleanupOrphanedWorlds();
     }
 
@@ -52,7 +52,7 @@ public class WorldsHandler {
             WorldCreator creator = new WorldCreator(worldName);
 
             creator.generator(new VoidGenerator());
-            
+
             World world = Bukkit.createWorld(creator);
 
             if (world == null) {
@@ -67,7 +67,10 @@ public class WorldsHandler {
             world.setGameRule(GameRule.FALL_DAMAGE, false);
             world.setGameRule(GameRule.FIRE_DAMAGE, true);
             world.setGameRule(GameRule.KEEP_INVENTORY, true);
-            world.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
+            world.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 100);
+            world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+            world.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
+            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
 
             plugin.getLogger().log(Level.INFO, "Created duel world: " + worldName + " from template: " + templateName);
             return world;
@@ -180,7 +183,7 @@ public class WorldsHandler {
         public void generateBedrock(org.bukkit.generator.WorldInfo worldInfo, java.util.Random random, int x, int z, org.bukkit.generator.ChunkGenerator.ChunkData chunkData) {
             // No bedrock (void)
         }
-        
+
         @Override
         public boolean shouldGenerateStructures() {
             return false;
