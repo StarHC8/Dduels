@@ -1,6 +1,8 @@
 package org.starhc.dduels.ui;
 
 import fr.mrmicky.fastinv.FastInv;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -46,7 +48,7 @@ public class TeamManagerUi extends FastInv {
     private final DuelSession session;
 
     public TeamManagerUi(Dduels plugin, DuelSession session) {
-        super(54, plugin.getConfigHandler().getMessageFromConfig("ui-names.team-manager"));
+        super(54, PlainTextComponentSerializer.plainText().serialize(plugin.getConfigHandler().getMessageFromConfig("ui-names.team-manager")));
         this.plugin = plugin;
         this.session = session;
 
@@ -55,12 +57,12 @@ public class TeamManagerUi extends FastInv {
 
     private void setupItems() {
 
-        setItems(NOT_USED_SLOTS, Item.create(Material.GRAY_STAINED_GLASS_PANE, 1, ""));
+        setItems(NOT_USED_SLOTS, Item.create(Material.GRAY_STAINED_GLASS_PANE, 1, Component.text("")));
 
         setItem(GUIDE_SLOT, Item.create(Material.WRITTEN_BOOK,
                 1,
                 plugin.getConfigHandler().getMessageFromConfig("items-names.team-manager-guide-item"),
-                plugin.getConfigHandler().getMessageFromConfig("items-names.team-manager-guide-lore").split("\\n")));
+                plugin.getConfigHandler().getMessageFromConfig("items-names.team-manager-guide-lore")));
 
         setItem(SHUFFLE_SLOT, Item.create(Material.ITEM_FRAME, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.team-manager-shuffle-item")), event -> {
             event.getWhoClicked().setItemOnCursor(null);
@@ -123,12 +125,12 @@ public class TeamManagerUi extends FastInv {
         for (int i = 0; i < 24; i++) {
             if (i < session.getTeamA().size()) {
                 Player playerA = session.getTeamA().get(i);
-                setItem(TEAM_A_SLOTS.get(i), Item.createPlayerHead(playerA.getName(), 1, "§r" + playerA.getName()));
+                setItem(TEAM_A_SLOTS.get(i), Item.createPlayerHead(playerA.getName(), 1, Component.text(playerA.getName())));
             }
 
             if (i < session.getTeamB().size()) {
                 Player playerB = session.getTeamB().get(i);
-                setItem(TEAM_B_SLOTS.get(i), Item.createPlayerHead(playerB.getName(), 1, "§r" + playerB.getName()));
+                setItem(TEAM_B_SLOTS.get(i), Item.createPlayerHead(playerB.getName(), 1, Component.text(playerB.getName())));
             }
         }
 

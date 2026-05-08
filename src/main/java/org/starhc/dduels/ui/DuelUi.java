@@ -1,6 +1,9 @@
 package org.starhc.dduels.ui;
 
 import fr.mrmicky.fastinv.FastInv;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -10,17 +13,22 @@ import org.starhc.dduels.models.DuelSession;
 import org.starhc.dduels.models.MapTemplate;
 import org.starhc.dduels.utils.Item;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 public class DuelUi extends FastInv {
+
+    private final List<Integer> SLOTS_SEND = List.of(0, 1, 2, 9, 10, 11, 18, 19, 20);
+    private final List<Integer> SLOTS_CANCEL = List.of(6, 7, 8, 15, 16, 17, 24, 25, 26);
+    private final int SLOT_PLAYERS = 22;
+    private final int SLOT_DUEL_TYPE = 12;
+    private final int SLOT_MAP = 4;
+    private final int SLOT_KIT = 13;
 
     private final Dduels plugin;
     private final DuelSession session;
 
     public DuelUi(Dduels plugin, DuelSession session) {
-        super(27, plugin.getConfigHandler().getMessageFromConfig("ui-names.duel-sender"));
+        super(27, PlainTextComponentSerializer.plainText().serialize(plugin.getConfigHandler().getMessageFromConfig("ui-names.duel-sender")));
         this.plugin = plugin;
         this.session = session;
 
@@ -35,7 +43,7 @@ public class DuelUi extends FastInv {
     }
 
     private void setupItems() {
-        setItems(List.of(0, 1, 2, 9, 10, 11, 18, 19, 20),
+        setItems(SLOTS_SEND,
                 Item.create(Material.LIME_STAINED_GLASS_PANE, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.send-item")),
                 event -> {
                     if (session.getSelectedKit().isEmpty()) {
@@ -45,7 +53,7 @@ public class DuelUi extends FastInv {
                     sendDuelRequest();
                 });
 
-        setItems(List.of(6, 7, 8, 15, 16, 17, 24, 25, 26),
+        setItems(SLOTS_CANCEL,
                 Item.create(Material.RED_STAINED_GLASS_PANE, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.cancel-item")),
                 event -> {
                     session.getSender().sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-cancelled"));
@@ -56,17 +64,15 @@ public class DuelUi extends FastInv {
         if (session.getAllPlayers().size() == 2) {
             String enemyName = session.getAllPlayers().stream().filter(player -> !player.equals(session.getSender())).findFirst().get().getName();
 
-            setItem(22, Item.createPlayerHead(enemyName, 1,
-                    plugin.getConfigHandler().getMessageFromConfig("items-names.enemy-item")
-                            .replace("[player]", enemyName)));
+            setItem(SLOT_PLAYERS, Item.createPlayerHead(enemyName, 1,
+                    plugin.getConfigHandler().getMessageFromConfig("items-names.enemy-item", Placeholder.component("player", Component.text(enemyName)))));
 
         } else {
             boolean isFfa = session.getDuelType().equals(DuelType.FFA);
 
-            String duelTypeItemName = "§r" + plugin.getConfigHandler().getMessageFromConfig("items-names.duel-type-item")
-                    .replace("[type]", (isFfa) ? "FFA" : "SPLIT");
+            Component duelTypeItemName = plugin.getConfigHandler().getMessageFromConfig("items-names.duel-type-item", Placeholder.component("type", Component.text((isFfa) ? "FFA" : "SPLIT")));
 
-            setItem(12, Item.create((isFfa) ? Material.REDSTONE_BLOCK : Material.LAPIS_BLOCK,
+            setItem(SLOT_DUEL_TYPE, Item.create((isFfa) ? Material.REDSTONE_BLOCK : Material.LAPIS_BLOCK,
                     1,
                     duelTypeItemName), event -> {
 
@@ -76,26 +82,23 @@ public class DuelUi extends FastInv {
             });
 
             if (!isFfa) {
-                setItem(22, Item.create(Material.BLUE_BANNER, 1,
+                setItem(SLOT_PLAYERS, Item.create(Material.BLUE_BANNER, 1,
                         plugin.getConfigHandler().getMessageFromConfig("items-names.team-manager")), event -> {
                     new TeamManagerUi(plugin, session).open(session.getSender());
                 });
             } else {
-                setItem(22, null);
+                setItem(SLOT_PLAYERS, null);
             }
 
         }
 
         MapTemplate currentMap = session.getSelectedMapTemplate().get();
-        setItem(4, Item.create(Material.GRASS_BLOCK, 1,
-                        "§r" + plugin.getConfigHandler().getMessageFromConfig("items-names.map-selector")
-                                .replace("[map]", currentMap.getTemplateDisplayName())),
+        setItem(SLOT_MAP, Item.create(Material.GRASS_BLOCK, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.map-selector", Placeholder.component("map", Component.text(currentMap.getTemplateDisplayName())))),
                 event -> new MapSelectorUi(plugin, session).open(session.getSender()));
 
         String kitDisplay = session.getSelectedKit().map(k -> "[" + k.getSlot() + "]").orElse("[]");
-        setItem(13, Item.create(Material.IRON_CHESTPLATE, 1,
-                        "§r" + plugin.getConfigHandler().getMessageFromConfig("items-names.kit-selector")
-                                .replace("[kit]", kitDisplay)),
+        setItem(SLOT_KIT, Item.create(Material.IRON_CHESTPLATE, 1,
+                        plugin.getConfigHandler().getMessageFromConfig("items-names.kit-selector", Placeholder.component("kit", Component.text(kitDisplay)))),
                 event -> new KitSelectorUi(plugin, session).open(session.getSender()));
 
 

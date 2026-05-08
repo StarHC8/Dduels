@@ -2,6 +2,7 @@ package org.starhc.dduels.handlers;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.starhc.dduels.Dduels;
@@ -29,28 +30,28 @@ public class RequestHandler {
 
         sender.sendMessage(" ");
         sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.sent"));
-        sender.sendMessage(Component.text(plugin.getConfigHandler().getMessageFromConfig("request.to").replace("[player]", receiver.getName()))
+        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.to",
+                        Placeholder.component("player",
+                        Component.text(receiver.getName())))
                 .clickEvent(ClickEvent.runCommand("/stats " + receiver.getName())));
 
-        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.map")
-                .replace("[map]", mapName));
+        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.map",
+                Placeholder.component("map",
+                Component.text(mapName))));
 
-        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.kit")
-                .replace("[kit]", kitName));
+        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.kit", Placeholder.component("kit", Component.text(kitName))));
         sender.sendMessage(" ");
 
         receiver.sendMessage(" ");
         receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.received"));
-        receiver.sendMessage(Component.text(plugin.getConfigHandler().getMessageFromConfig("request.from").replace("[player]", sender.getName()))
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.from", Placeholder.component("player", Component.text(sender.getName())))
                 .clickEvent(ClickEvent.runCommand("/stats " + sender.getName())));
 
-        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.map")
-                .replace("[map]", mapName));
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.map", Placeholder.component("map", Component.text(mapName))));
 
-        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.kit")
-                .replace("[kit]", kitName));
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.kit", Placeholder.component("kit", Component.text(kitName))));
 
-        receiver.sendMessage(Component.text(plugin.getConfigHandler().getMessageFromConfig("request.accept"))
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request.accept")
                 .clickEvent(ClickEvent.runCommand("/duelaccept " + sender.getName())));
         receiver.sendMessage(" ");
 
@@ -59,8 +60,8 @@ public class RequestHandler {
             if (pendingRequests.containsKey(receiver.getUniqueId()) &&
                     pendingRequests.get(receiver.getUniqueId()).getSender().equals(sender.getUniqueId())) {
                 pendingRequests.remove(receiver.getUniqueId());
-                sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-to").replace("[player]", receiver.getName()));
-                receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-from").replace("[player]", sender.getName()));
+                sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-to", Placeholder.component("player", Component.text(receiver.getName()))));
+                receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-from", Placeholder.component("player", Component.text(sender.getName()))));
             }
         }, 20 * 60L);
     }
@@ -70,8 +71,8 @@ public class RequestHandler {
     }
 
     public void acceptRequest(Player receiver, Player sender) {
-        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("accepted-request-from").replace("[player]", receiver.getName()));
-        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("accepted-request-to").replace("[player]", sender.getName()));
+        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("accepted-request-from", Placeholder.component("player", Component.text(receiver.getName()))));
+        receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("accepted-request-to", Placeholder.component("player", Component.text(sender.getName()))));
         pendingRequests.remove(receiver.getUniqueId());
     }
 }

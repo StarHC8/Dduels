@@ -1,6 +1,9 @@
 package org.starhc.dduels.ui;
 
 import fr.mrmicky.fastinv.FastInv;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -10,7 +13,10 @@ import org.starhc.dduels.models.DuelSession;
 import org.starhc.dduels.models.PlayerStats;
 import org.starhc.dduels.utils.Item;
 
+import java.util.Map;
+
 public class StatsUi extends FastInv {
+
     private static final int SLOT_WINS = 4;
     private static final int SLOT_LOSSES = 16;
     private static final int SLOT_DUELS = 10;
@@ -22,7 +28,7 @@ public class StatsUi extends FastInv {
     private final PlayerStats playerStats;
 
     public StatsUi(Dduels plugin, PlayerStats playerStats) {
-        super(27, plugin.getConfigHandler().getMessageFromConfig("ui-names.stats").replace("[player]", Bukkit.getOfflinePlayer(playerStats.getUuid()).getName()));
+        super(27, PlainTextComponentSerializer.plainText().serialize(plugin.getConfigHandler().getMessageFromConfig("ui-names.stats", Placeholder.component("player", Component.text(Bukkit.getOfflinePlayer(playerStats.getUuid()).getName())))));
         this.plugin = plugin;
         this.playerStats = playerStats;
 
@@ -34,35 +40,35 @@ public class StatsUi extends FastInv {
                 Material.DIAMOND_SWORD,
                 1,
                 plugin.getConfigHandler().getMessageFromConfig("items-names.duels-item"),
-                String.valueOf(playerStats.getDuels())
+                Component.text(playerStats.getDuels())
         ));
 
         setItem(SLOT_WIN_STREAK, Item.create(
                 Material.DIAMOND,
                 1,
                 plugin.getConfigHandler().getMessageFromConfig("items-names.win-streak-item"),
-                String.valueOf(playerStats.getWinStreak())
+                Component.text(playerStats.getWinStreak())
         ));
 
         setItem(SLOT_WINS, Item.create(
                 Material.NETHER_STAR,
                 1,
                 plugin.getConfigHandler().getMessageFromConfig("items-names.wins-item"),
-                String.valueOf(playerStats.getWins())
+                Component.text(playerStats.getWins())
         ));
 
         setItem(SLOT_LONGEST_WIN_STREAK, Item.create(
                 Material.ENCHANTED_GOLDEN_APPLE,
                 1,
                 plugin.getConfigHandler().getMessageFromConfig("items-names.longest-ws-item"),
-                String.valueOf(playerStats.getLongestWinStreak())
+                Component.text(playerStats.getLongestWinStreak())
         ));
 
         setItem(SLOT_LOSSES, Item.create(
                 Material.RED_DYE,
                 1,
                 plugin.getConfigHandler().getMessageFromConfig("items-names.losses-item"),
-                String.valueOf(playerStats.getLosses())
+                Component.text(playerStats.getLosses())
         ));
 
         setItem(SLOT_GO_BACK, Item.create(

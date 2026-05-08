@@ -2,6 +2,8 @@ package org.starhc.dduels.ui;
 
 import fr.mrmicky.fastinv.InventoryScheme;
 import fr.mrmicky.fastinv.PaginatedFastInv;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -16,6 +18,9 @@ import java.util.List;
 
 public class SpectNavigatorUi extends PaginatedFastInv {
 
+    private static final int SLOT_PREVIOUS_PAGE = 39;
+    private static final int SLOT_NEXT_PAGE = 41;
+
     private static final InventoryScheme SCHEME = new InventoryScheme()
             .mask("         ")
             .mask(" 1111111 ")
@@ -24,13 +29,13 @@ public class SpectNavigatorUi extends PaginatedFastInv {
             .bindPagination('1');
 
     public SpectNavigatorUi(Dduels plugin, Duel duel) {
-        super(45, plugin.getConfigHandler().getMessageFromConfig("ui-names.spect-navigator"));
+        super(45, PlainTextComponentSerializer.plainText().serialize(plugin.getConfigHandler().getMessageFromConfig("ui-names.spect-navigator")));
 
-        previousPageItem(39, p -> Item.create(Material.ARROW, 1, "Page " + p + "/" + lastPage()));
-        nextPageItem(41, p -> Item.create(Material.ARROW, 1, "Page " + p + "/" + lastPage()));
+        previousPageItem(SLOT_PREVIOUS_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
+        nextPageItem(SLOT_NEXT_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
 
         for (Player player : duel.getAlivePlayers()) {
-            addContent(Item.createPlayerHead(player.getName(), 1, "§f" + player.getName()), event -> {
+            addContent(Item.createPlayerHead(player.getName(), 1, Component.text(player.getName())), event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 clicker.teleport(player.getLocation());
             });

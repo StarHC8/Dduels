@@ -2,6 +2,8 @@ package org.starhc.dduels.models;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -148,13 +150,13 @@ public class Duel {
     }
 
     public void manageWinners(List<Player> winners) {
-        String winner;
+        Component winner;
         if (duelType.equals(DuelType.SPLIT)) {
-            winner = plugin.getConfigHandler().getMessageFromConfig("results.winning-team") + getPlayerTeam(alivePlayers.getFirst()).stream()
+            winner = plugin.getConfigHandler().getMessageFromConfig("results.winning-team").append(Component.text(getPlayerTeam(alivePlayers.getFirst()).stream()
                     .map(Player::getName)
-                    .collect(Collectors.joining(", "));
+                    .collect(Collectors.joining(", "))));
         } else {
-            winner = plugin.getConfigHandler().getMessageFromConfig("results.winner") + alivePlayers.getFirst().getName();
+            winner = plugin.getConfigHandler().getMessageFromConfig("results.winner").append(Component.text(alivePlayers.getFirst().getName()));
         }
 
         for (Player player : players) {
@@ -205,9 +207,11 @@ public class Duel {
         alivePlayers.remove(killed);
 
         for (Player player : players) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-killed-player")
-                    .replace("[killer]", getPlayerDisplayName(killer))
-                    .replace("[killed]", getPlayerDisplayName(killed)));
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig(
+                    "player-killed-player",
+                    Placeholder.component("killer", getPlayerDisplayName(killer)),
+                    Placeholder.component("killed", getPlayerDisplayName(killed))
+            ));
         }
 
         deads.add(killed);
@@ -221,7 +225,7 @@ public class Duel {
         alivePlayers.remove(dead);
 
         for (Player player : players) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-died").replace("[player]", getPlayerDisplayName(dead)));
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-died", Placeholder.component("player", getPlayerDisplayName(dead))));
         }
 
         deads.add(dead);
@@ -236,7 +240,7 @@ public class Duel {
         alivePlayers.remove(leaver);
 
         for (Player player : players) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-left-duel").replace("[player]", leaver.getName()));
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-left-duel", Placeholder.component("player", getPlayerDisplayName(leaver))));
         }
 
         deads.add(leaver);
@@ -310,7 +314,7 @@ public class Duel {
             plugin.getSpectatorHandler().applySpectatorEffect(spectator);
         });
 
-        spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("start-spectating").replace("[player]", toSpectate.getName()));
+        spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("start-spectating", Placeholder.component("player", getPlayerDisplayName(toSpectate))));
     }
 
     public void stopSpectating(Player spectator) {
@@ -341,22 +345,22 @@ public class Duel {
 
         player.sendMessage(" ");
         player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.start"));
-        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.type").replace("[type]", duelTypeName));
+        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.type", Placeholder.component("type", Component.text(duelTypeName))));
 
-        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.map")
-                .replace("[map]", mapName));
+        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.map", Placeholder.component("map", Component.text(mapName))));
 
-        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.kit")
-                .replace("[kit]", kitName));
+        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel.kit", Placeholder.component("kit", Component.text(kitName))));
+
         player.sendMessage(" ");
 
     }
 
-    public String getPlayerDisplayName(Player player) {
+    public Component getPlayerDisplayName(Player player) {
         if (duelType.equals(DuelType.FFA)) {
-            return player.getName();
+            return Component.text(player.getName());
         } else {
-            return ((getPlayerTeam(player).equals(teamA)) ? "§c" : "§9") + player.getName();
+            return Component.text(player.getName(), (getPlayerTeam(player).equals(teamA) ? NamedTextColor.RED : NamedTextColor.BLUE));
+
         }
     }
 
