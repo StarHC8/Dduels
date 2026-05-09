@@ -101,15 +101,18 @@ public class Duel {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("loading-duel"));
         }
 
-        world = plugin.getWorldsHandler().createWorldFromTemplate(mapTemplate.getTemplateName());
-        if (world == null) {
-            for (Player player : players) {
-                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("system-errors.world-error"));
+        plugin.getWorldsHandler().createWorldFromTemplate(mapTemplate.getTemplateName()).thenAccept(createdWorld -> {
+            if (createdWorld == null) {
+                for (Player player : players) {
+                    player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("system-errors.world-error"));
+                }
+                plugin.getDuelHandler().deleteDuel(this);
+                return;
             }
-            plugin.getDuelHandler().deleteDuel(this);
-            return;
-        }
-        Bukkit.getScheduler().runTaskLater(plugin, this::start, 20 * 3L);
+            this.world = createdWorld;
+            Bukkit.getScheduler().runTaskLater(plugin, this::start, 20 * 3L);
+        });
+
 
     }
 

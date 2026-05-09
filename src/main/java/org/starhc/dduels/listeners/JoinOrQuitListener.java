@@ -39,6 +39,7 @@ public class JoinOrQuitListener implements Listener {
             plugin.getStatsHandler().addPlayer(player);
         }
 
+        plugin.getRequestHandler().addPlayerToRequestsList(player);
     }
 
     @EventHandler
@@ -50,6 +51,8 @@ public class JoinOrQuitListener implements Listener {
         if (duel != null) {
             duel.leave(player);
         }
+
+        plugin.getRequestHandler().removePlayerFromRequestsList(player);
 
     }
 

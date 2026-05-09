@@ -6,6 +6,7 @@ messages:
   self-accept: "<red>You cannot accept a duel request from yourself."
   self-spectate: "<red>You cannot spectate yourself."
   not-duelled: "<red>You do not have a duel request from this player."
+  request-already-sent: "<red>You already sent a duel request to this player."
   player-already-in-duel: "<red>Can't start: A player is already in a duel."
   empty-team: "<red>Can't start: There is an empty team."
   player-not-in-duel: "<red>This player isn't in a duel."

@@ -69,6 +69,11 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (plugin.getRequestHandler().getRequest(target, player) != null) {
+            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("request-already-sent"));
+            return true;
+        }
+
         DuelSession session = new DuelSession(player, List.of(player, target));
 
         session.setSelectedMapTemplate(plugin.getMapTemplateHandler().getMapTemplates().getFirst());
