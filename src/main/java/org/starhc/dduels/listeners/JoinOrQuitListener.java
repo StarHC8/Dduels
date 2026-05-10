@@ -44,6 +44,8 @@ public class JoinOrQuitListener implements Listener {
             }
         });
 
+        plugin.getKitHandler().loadPlayerKits(player.getUniqueId());
+
         plugin.getRequestHandler().addPlayerToRequestsList(player);
     }
 
@@ -56,6 +58,8 @@ public class JoinOrQuitListener implements Listener {
         if (duel != null) {
             duel.leave(player);
         }
+
+        plugin.getKitHandler().unloadPlayerKits(player.getUniqueId());
 
         plugin.getRequestHandler().removePlayerFromRequestsList(player);
 

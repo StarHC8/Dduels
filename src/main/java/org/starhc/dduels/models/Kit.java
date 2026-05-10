@@ -8,9 +8,9 @@ import java.util.UUID;
 public class Kit {
     private final UUID creatorUuid;
     private final int slot;
-    private final ItemStack[] contents;
-    private final ItemStack[] armor;
-    private final ItemStack offHand;
+    private ItemStack[] contents;
+    private ItemStack[] armor;
+    private ItemStack offHand;
 
     public Kit(UUID creatorUuid, int slot, ItemStack[] contents, ItemStack[] armor, ItemStack offHand) {
         this.creatorUuid = creatorUuid;
@@ -19,7 +19,6 @@ public class Kit {
         this.armor = armor;
         this.offHand = offHand;
     }
-
 
     public UUID getCreatorUuid() {
         return creatorUuid;
@@ -39,5 +38,17 @@ public class Kit {
 
     public ItemStack getOffHand() {
         return offHand;
+    }
+
+    public void setContents(ItemStack[] contents) {
+        this.contents = contents;
+    }
+
+    public void setArmor(ItemStack[] armor) {
+        this.armor = armor;
+    }
+
+    public void setOffHand(ItemStack offHand) {
+        this.offHand = offHand;
     }
 }

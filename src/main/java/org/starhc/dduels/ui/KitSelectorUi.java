@@ -71,7 +71,7 @@ public class KitSelectorUi extends PaginatedFastInv {
 
         addContent(Item.create(Material.MAP, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.new-kit")), e -> {
 
-            int lastKitIndex = 1;
+            int lastKitIndex = 0;
             for (Kit kit : kits) {
                 lastKitIndex = Math.max(kit.getSlot(), lastKitIndex);
             }

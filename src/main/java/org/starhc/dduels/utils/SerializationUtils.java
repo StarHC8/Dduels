@@ -1,47 +1,31 @@
 package org.starhc.dduels.utils;
 
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class SerializationUtils {
 
-    public static String itemStackArrayToBase64(ItemStack[] items) throws IllegalStateException {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
-            dataOutput.writeInt(items.length);
-
-            for (int i = 0; i < items.length; i++) {
-                dataOutput.writeObject(items[i]);
-            }
-
-            dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
-        } catch (Exception e) {
-            throw new IllegalStateException("An error occurred while serializing the item stack.", e);
-        }
+    public static String itemStackArrayToString(ItemStack[] items) throws IllegalStateException {
+        YamlConfiguration config = new YamlConfiguration();
+        config.set("items", items);
+        return config.saveToString();
     }
 
-    public static ItemStack[] itemStackArrayFromBase64(String data) throws IOException {
+    public static ItemStack[] itemStackArrayFromString(String data) throws IOException {
+        if (data == null || data.isEmpty()) return new ItemStack[0];
+
+        YamlConfiguration config = new YamlConfiguration();
         try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-            ItemStack[] items = new ItemStack[dataInput.readInt()];
+            config.loadFromString(data);
+            List<?> list = config.getList("items");
+            if (list == null) return new ItemStack[0];
 
-            for (int i = 0; i < items.length; i++) {
-                items[i] = (ItemStack) dataInput.readObject();
-            }
-
-            dataInput.close();
-            return items;
-        } catch (ClassNotFoundException e) {
+            return list.toArray(new ItemStack[0]);
+        } catch (InvalidConfigurationException e) {
             throw new IOException("An error occurred while deserializing the item stack.", e);
         }
     }

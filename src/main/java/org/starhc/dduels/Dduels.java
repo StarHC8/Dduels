@@ -1,8 +1,6 @@
 package org.starhc.dduels;
 
 import fr.mrmicky.fastinv.FastInvManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
@@ -17,8 +15,6 @@ import org.starhc.dduels.listeners.SpectatorListener;
 import org.starhc.partyManager.PartyManager;
 import org.starhc.partyManager.handlers.PartyHandler;
 
-import java.awt.*;
-import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
