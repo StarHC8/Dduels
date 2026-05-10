@@ -1,7 +1,6 @@
 package org.starhc.dduels.handlers;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.Kit;
@@ -11,9 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
@@ -24,16 +21,41 @@ public class KitHandler {
         this.plugin = plugin;
     }
 
+    private Map<UUID, List<Kit>> playersKits = new HashMap<>();
+
+    public void loadPlayerKits(UUID uuid) {
+        String query = "SELECT * FROM " + plugin.getDatabase().getKitTable() + " WHERE uuid = ?";
+        List<Kit> kits = new ArrayList<>();
+
+        try (Connection conn = plugin.getDatabase().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, uuid.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    kits.add(mapKit(rs, uuid));
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "An error occurred while loading " + uuid + " 's kits: ", e);
+        }
+        playersKits.put(uuid, kits);
+    }
+
+    public void unloadPlayerKits(UUID uuid) { playersKits.remove(uuid); }
+
     public CompletableFuture<Void> saveKit(UUID uuid, int slot, ItemStack[] contents, ItemStack[] armor, ItemStack offHand) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         String query = "INSERT INTO " + plugin.getDatabase().getKitTable() + " (uuid, slot, inventory_data, armor_data, offhand_data) VALUES (?, ?, ?, ?, ?) " +
                        "ON DUPLICATE KEY UPDATE inventory_data = ?, armor_data = ?, offhand_data = ?";
 
+        Kit newKit = new Kit(uuid, slot, contents, armor, offHand);
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                String invData = SerializationUtils.itemStackArrayToBase64(contents);
-                String armorData = SerializationUtils.itemStackArrayToBase64(armor);
-                String offHandData = SerializationUtils.itemStackArrayToBase64(new ItemStack[]{offHand});
+                String invData = SerializationUtils.itemStackArrayToString(contents);
+                String armorData = SerializationUtils.itemStackArrayToString(armor);
+                String offHandData = SerializationUtils.itemStackArrayToString(new ItemStack[]{offHand});
+
+
 
                 try (Connection conn = plugin.getDatabase().getConnection();
                      PreparedStatement ps = conn.prepareStatement(query)) {
@@ -53,6 +75,20 @@ public class KitHandler {
                 future.completeExceptionally(e);
             }
         });
+
+        boolean isToUpdate = false;
+        for (Kit kit : playersKits.get(uuid)) {
+            if (kit.getSlot() == slot) {
+                isToUpdate = true;
+                kit.setContents(contents);
+                kit.setArmor(armor);
+                kit.setOffHand(offHand);
+            }
+        }
+
+        if (!isToUpdate) {
+            playersKits.get(uuid).add(newKit);
+        }
         return future;
     }
 
@@ -75,21 +111,7 @@ public class KitHandler {
     }
 
     public List<Kit> getKits(UUID uuid) {
-        String query = "SELECT * FROM " + plugin.getDatabase().getKitTable() + " WHERE uuid = ?";
-        List<Kit> kits = new ArrayList<>();
-
-        try (Connection conn = plugin.getDatabase().getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, uuid.toString());
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    kits.add(mapKit(rs, uuid));
-                }
-            }
-        } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "An error occurred while loading " + uuid + " 's kits: ", e);
-        }
-        return kits;
+        return playersKits.get(uuid);
     }
 
     private Kit mapKit(ResultSet rs, UUID uuid) throws Exception {
@@ -98,9 +120,9 @@ public class KitHandler {
         String armorData = rs.getString("armor_data");
         String offHandData = rs.getString("offhand_data");
 
-        ItemStack[] contents = SerializationUtils.itemStackArrayFromBase64(invData);
-        ItemStack[] armor = SerializationUtils.itemStackArrayFromBase64(armorData);
-        ItemStack offHand = SerializationUtils.itemStackArrayFromBase64(offHandData)[0];
+        ItemStack[] contents = SerializationUtils.itemStackArrayFromString(invData);
+        ItemStack[] armor = SerializationUtils.itemStackArrayFromString(armorData);
+        ItemStack offHand = SerializationUtils.itemStackArrayFromString(offHandData)[0];
 
         return new Kit(uuid, slot, contents, armor, offHand);
     }
@@ -122,6 +144,12 @@ public class KitHandler {
                 future.completeExceptionally(e);
             }
         });
+        for (Kit kit : playersKits.get(uuid)) {
+            if (kit.getSlot() == slot) {
+                playersKits.get(uuid).remove(kit);
+            }
+        }
+
         return future;
     }
 }
