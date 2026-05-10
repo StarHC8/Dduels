@@ -105,17 +105,6 @@ public class KitHandler {
         return new Kit(uuid, slot, contents, armor, offHand);
     }
 
-    public boolean applyKit(Player player, int slot) {
-        Kit kit = getKit(player.getUniqueId(), slot);
-        if (kit == null) return false;
-
-        player.getInventory().clear();
-        player.getInventory().setStorageContents(kit.getContents());
-        player.getInventory().setArmorContents(kit.getArmor());
-        player.getInventory().setItemInOffHand(kit.getOffHand());
-        player.updateInventory();
-        return true;
-    }
 
     public CompletableFuture<Void> deleteKit(UUID uuid, int slot) {
         CompletableFuture<Void> future = new CompletableFuture<>();

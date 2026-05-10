@@ -2,6 +2,10 @@ package org.starhc.dduels.ui;
 
 import fr.mrmicky.fastinv.InventoryScheme;
 import fr.mrmicky.fastinv.PaginatedFastInv;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -56,7 +60,7 @@ public class KitCreatorUi extends PaginatedFastInv {
 
 
     public KitCreatorUi(Dduels plugin, DuelSession session, Kit selectedKit) {
-        super(54, plugin.getConfigHandler().getMessageFromConfig("ui-names.kit-creator"));
+        super(54, PlainTextComponentSerializer.plainText().serialize(plugin.getConfigHandler().getMessageFromConfig("ui-names.kit-creator")));
         this.plugin = plugin;
         this.session = session;
         this.selectedKit = selectedKit;
@@ -71,8 +75,8 @@ public class KitCreatorUi extends PaginatedFastInv {
     }
 
     private void setupNavigation() {
-        previousPageItem(SLOT_PREVIOUS_PAGE, p -> Item.create(Material.ARROW, 1, "Page " + p + "/" + lastPage()));
-        nextPageItem(SLOT_NEXT_PAGE, p -> Item.create(Material.ARROW, 1, "Page " + p + "/" + lastPage()));
+        previousPageItem(SLOT_PREVIOUS_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
+        nextPageItem(SLOT_NEXT_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
     }
 
     private void setupPlayerInventory() {
@@ -88,7 +92,7 @@ public class KitCreatorUi extends PaginatedFastInv {
             if (armorItems[armorIndexToShow] != null) {
                 setItem(slot, armorItems[armorIndexToShow]);
             } else {
-                String name = "";
+                Component name = Component.text("");
                 switch (slot) {
                     case SLOT_HELMET:
                         name = plugin.getConfigHandler().getMessageFromConfig("items-names.helmet-slot");
@@ -164,7 +168,7 @@ public class KitCreatorUi extends PaginatedFastInv {
 
         for (Material material : getKitUnstackableItems()) {
             String name = getItemDisplayName(material);
-            ItemStack itemStack = Item.create(material, 1, "§r" + name);
+            ItemStack itemStack = Item.create(material, 1, Component.text(name));
             List<Enchantment> enchants = new ArrayList<>(getValidEnchantments(itemStack).keySet());
             final int[] selectedIndex = {0};
 
@@ -210,11 +214,11 @@ public class KitCreatorUi extends PaginatedFastInv {
         for (Material material : getKitStackableItems()) {
             String name = getItemDisplayName(material);
 
-            ItemStack itemStack = Item.create(material, 1, "§f" + name);
+            ItemStack itemStack = Item.create(material, 1, Component.text(name));
             addContent(itemStack, event -> {
                 event.setCancelled(true);
                 if (event.getClick() == ClickType.LEFT) {
-                    ItemStack toGive = Item.create(itemStack.getType(), 64, itemStack.getItemMeta().getDisplayName());
+                    ItemStack toGive = Item.create(itemStack.getType(), 64, itemStack.getItemMeta().displayName());
                     event.getWhoClicked().getInventory().addItem(toGive);
                 }
             });
@@ -223,11 +227,11 @@ public class KitCreatorUi extends PaginatedFastInv {
         for (Material material : getKitLimitedStackableItems()) {
             String name = getItemDisplayName(material);
 
-            ItemStack itemStack = Item.create(material, 1, "§f" + name);
+            ItemStack itemStack = Item.create(material, 1, Component.text(name));
             addContent(itemStack, event -> {
                 event.setCancelled(true);
                 if (event.getClick() == ClickType.LEFT) {
-                    ItemStack toGive = Item.create(itemStack.getType(), 16, itemStack.getItemMeta().getDisplayName());
+                    ItemStack toGive = Item.create(itemStack.getType(), 16, itemStack.getItemMeta().displayName());
                     event.getWhoClicked().getInventory().addItem(toGive);
                 }
             });
@@ -239,7 +243,7 @@ public class KitCreatorUi extends PaginatedFastInv {
             if (meta == null) continue;
             meta.setBasePotionType(baseType);
             String name = getItemDisplayName(baseType);
-            meta.setDisplayName("§r" + name);
+            meta.displayName(Component.text(name));
             itemStack.setItemMeta(meta);
 
             final int[] selectedIndex = {0};
@@ -287,7 +291,7 @@ public class KitCreatorUi extends PaginatedFastInv {
                     ItemStack clone = itemStack.clone();
                     ItemMeta cloneMeta = clone.getItemMeta();
                     if (cloneMeta != null) {
-                        cloneMeta.setLore(null);
+                        cloneMeta.lore(null);
                         clone.setItemMeta(cloneMeta);
                     }
                     event.getWhoClicked().getInventory().addItem(clone);
@@ -310,16 +314,18 @@ public class KitCreatorUi extends PaginatedFastInv {
     private void updateLore(ItemStack item, List<Enchantment> enchants, int selectedIndex) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
-        List<String> lore = new ArrayList<>();
+        List<Component> lore = new ArrayList<>();
         for (int i = 0; i < enchants.size(); i++) {
             Enchantment ench = enchants.get(i);
             int level = item.getEnchantmentLevel(ench);
             String name = ench.getKey().getKey().replace("_", " ");
             name = name.substring(0, 1).toUpperCase() + name.substring(1);
-            String line = (i == selectedIndex ? "§b▶ §f" : "§7  ") + name + ": §e" + level;
+            Component line = MiniMessage.miniMessage().deserialize(
+                    ((i == selectedIndex) ? "<aqua>▶ <white>" : "<gray> ") + name + ": <yellow>" + level
+            );
             lore.add(line);
         }
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
     }
 
@@ -327,13 +333,13 @@ public class KitCreatorUi extends PaginatedFastInv {
         ItemMeta meta = item.getItemMeta();
         if (!(meta instanceof PotionMeta potionMeta)) return;
 
-        List<String> lore = new ArrayList<>();
+        List<Component> lore = new ArrayList<>();
 
         // Form
         String formName = item.getType().name().replace("_POTION", "").toLowerCase();
         if (formName.equals("potion")) formName = "normal";
         formName = formName.substring(0, 1).toUpperCase() + formName.substring(1);
-        lore.add((selectedIndex == 0 ? "§b▶ §f" : "§7  ") + "Form: §e" + formName);
+        lore.add(MiniMessage.miniMessage().deserialize((selectedIndex == 0 ? "<aqua>▶ <white>" : "<gray> ") + "Form: <yellow>" + formName));
 
         // Upgrade
         PotionType type = potionMeta.getBasePotionType();
@@ -341,9 +347,9 @@ public class KitCreatorUi extends PaginatedFastInv {
         if (type.name().startsWith("STRONG_")) upgrade = "Level II";
         else if (type.name().startsWith("LONG_")) upgrade = "Extended";
 
-        lore.add((selectedIndex == 1 ? "§b▶ §f" : "§7  ") + "Upgrade: §e" + upgrade);
+        lore.add(MiniMessage.miniMessage().deserialize((selectedIndex == 1 ? "<aqua>▶ <white>" : "<gray> ") + "Upgrade: <yellow>" + upgrade));
 
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
     }
 

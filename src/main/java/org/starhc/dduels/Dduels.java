@@ -1,6 +1,8 @@
 package org.starhc.dduels;
 
 import fr.mrmicky.fastinv.FastInvManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
@@ -15,6 +17,8 @@ import org.starhc.dduels.listeners.SpectatorListener;
 import org.starhc.partyManager.PartyManager;
 import org.starhc.partyManager.handlers.PartyHandler;
 
+import java.awt.*;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -30,6 +34,7 @@ public final class Dduels extends JavaPlugin {
     private DuelHandler duelHandler;
     private SpectatorHandler spectatorHandler;
     private TeamHandler teamHandler;
+    private LobbyHandler lobbyHandler;
 
     private PartyManager partyManager;
     private PartyHandler partyHandler;
@@ -46,6 +51,7 @@ public final class Dduels extends JavaPlugin {
         duelHandler = new DuelHandler(this);
         spectatorHandler = new SpectatorHandler(this);
         teamHandler = new TeamHandler(this);
+        lobbyHandler = new LobbyHandler(this);
 
         int port = configHandler.getConfig("settings").getInt("port");
         String host = configHandler.getConfig("settings").getString("host");
@@ -128,6 +134,10 @@ public final class Dduels extends JavaPlugin {
 
     public TeamHandler getTeamHandler() {
         return teamHandler;
+    }
+
+    public LobbyHandler getLobbyHandler() {
+        return lobbyHandler;
     }
 
     public PartyManager getPartyManager() {

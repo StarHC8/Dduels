@@ -1,5 +1,6 @@
 package org.starhc.dduels.utils;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
@@ -13,12 +14,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class Item {
-    public static void createAndSet(Inventory inv, Material material, int amount, int invSlot, String displayName, String... loreString) {
-        ItemStack item = create(material, amount, displayName, loreString);
-        inv.setItem(invSlot, item);
-    }
-
-    public static ItemStack create(Material material, int amount, String displayName, String... loreString) {
+    public static ItemStack create(Material material, int amount, Component displayName, Component... loreString) {
         ItemStack item;
         ArrayList lore = new ArrayList();
 
@@ -26,29 +22,29 @@ public class Item {
 
         ItemMeta meta = item.getItemMeta();
 
-        meta.setDisplayName(displayName);
+        meta.displayName(displayName);
 
-        for (String s : loreString) {
+        for (Component s : loreString) {
             lore.add(s);
         }
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
         return item;
     }
 
-    public static ItemStack createEnchanted(Material material, int amount, Map<Enchantment, Integer> enchantements, String displayName, String... loreString) {
+    public static ItemStack createEnchanted(Material material, int amount, Map<Enchantment, Integer> enchantements, Component displayName, Component... loreString) {
         ItemStack item;
         ArrayList lore = new ArrayList();
 
         item = new ItemStack(material, amount);
 
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(displayName);
+        meta.displayName(displayName);
 
-        for (String s : loreString) {
+        for (Component s : loreString) {
             lore.add(s);
         }
-        meta.setLore(lore);
+        meta.lore(lore);
 
         for (Map.Entry<Enchantment, Integer> enchant : enchantements.entrySet()) {
             meta.addEnchant(enchant.getKey(), enchant.getValue(), true);
@@ -57,39 +53,7 @@ public class Item {
         return item;
     }
 
-    public static void createEnchantedAndSet(Inventory inv, Material material, int amount, int invSlot, Map<Enchantment, Integer> enchantements, String displayName, String... loreString) {
-        ItemStack item = createEnchanted(material, amount, enchantements, displayName, loreString);
-        inv.setItem(invSlot, item);
-    }
-
-    public static ItemStack createVisualEnchanted(Material material, int amount, String displayName, String... loreString) {
-        ItemStack item;
-        ArrayList lore = new ArrayList();
-
-        item = new ItemStack(material, amount);
-
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(displayName);
-
-        for (String s : loreString) {
-            lore.add(s);
-        }
-        meta.setLore(lore);
-
-        meta.addEnchant(Enchantment.SHARPNESS, 1, true);
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        item.setItemMeta(meta);
-
-        return item;
-    }
-
-    public static void createVisualEnchantedAndSet(Inventory inv, Material material, int amount, int invSlot, String displayName, String... loreString) {
-        ItemStack item = createVisualEnchanted(material, amount, displayName, loreString);
-        inv.setItem(invSlot, item);
-    }
-
-
-    public static ItemStack createPlayerHead(String player, int amount, String displayName, String... loreString) {
+    public static ItemStack createPlayerHead(String player, int amount, Component displayName, Component... loreString) {
         ItemStack item;
         ArrayList lore = new ArrayList();
 
@@ -98,27 +62,19 @@ public class Item {
         SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
 
         skullMeta.setOwner(player);
-        skullMeta.setDisplayName(displayName);
+        skullMeta.displayName(displayName);
         item.setItemMeta(skullMeta);
 
         ItemMeta meta = item.getItemMeta();
 
-        for (String s : loreString) {
+        for (Component s : loreString) {
             lore.add(s);
         }
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
 
         return item;
     }
 
-    public static void  createPlayerHeadAndSet(Inventory inv, String player, int amount, int invSlot, String displayName, String... loreString) {
-        ItemStack item = createPlayerHead(player, amount, displayName, loreString);
-        inv.setItem(invSlot, item);
-    }
-
-    public static boolean getClickedItem(ItemStack clicked, String message) {
-        return clicked.getItemMeta().getDisplayName().equalsIgnoreCase(message);
-    }
 
 }

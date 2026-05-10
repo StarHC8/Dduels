@@ -27,6 +27,11 @@ public class HitListener implements Listener {
                 }
 
                 Duel playingDuel = plugin.getDuelHandler().getDuel(damager);
+                if (playingDuel == null) {
+                    event.setCancelled(true);
+                    return;
+                }
+
                 if (playingDuel.getDuelType().equals(DuelType.SPLIT)) {
                     if (plugin.getTeamHandler().areInSameTeam(player, damager)) {
                         event.setCancelled(true);
@@ -36,6 +41,11 @@ public class HitListener implements Listener {
 
             } else if (event.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof Player damager) {
                 Duel playingDuel = plugin.getDuelHandler().getDuel(damager);
+                if (playingDuel == null) {
+                    event.setCancelled(true);
+                    return;
+                }
+
                 if (playingDuel.getDuelType().equals(DuelType.SPLIT)) {
                     if (plugin.getTeamHandler().areInSameTeam(player, damager)) {
                         event.setCancelled(true);

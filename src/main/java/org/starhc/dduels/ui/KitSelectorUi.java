@@ -2,6 +2,11 @@ package org.starhc.dduels.ui;
 
 import fr.mrmicky.fastinv.InventoryScheme;
 import fr.mrmicky.fastinv.PaginatedFastInv;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
@@ -12,8 +17,12 @@ import org.starhc.dduels.models.Kit;
 import org.starhc.dduels.utils.Item;
 
 import java.util.List;
+import java.util.Map;
 
 public class KitSelectorUi extends PaginatedFastInv {
+
+    private static final int SLOT_PREVIOUS_PAGE = 39;
+    private static final int SLOT_NEXT_PAGE = 41;
 
     private static final InventoryScheme SCHEME = new InventoryScheme()
             .mask("         ")
@@ -23,10 +32,10 @@ public class KitSelectorUi extends PaginatedFastInv {
             .bindPagination('1');
 
     public KitSelectorUi(Dduels plugin, DuelSession session) {
-        super(45, plugin.getConfigHandler().getMessageFromConfig("ui-names.kit-selector"));
+        super(45, PlainTextComponentSerializer.plainText().serialize(plugin.getConfigHandler().getMessageFromConfig("ui-names.kit-selector")));
 
-        previousPageItem(39, p -> Item.create(Material.ARROW, 1, "Page " + p + "/" + lastPage()));
-        nextPageItem(41, p -> Item.create(Material.ARROW, 1, "Page " + p + "/" + lastPage()));
+        previousPageItem(SLOT_PREVIOUS_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
+        nextPageItem(SLOT_NEXT_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
 
         List<Kit> kits = plugin.getKitHandler().getKits(session.getSender().getUniqueId());
 
@@ -37,12 +46,10 @@ public class KitSelectorUi extends PaginatedFastInv {
                 isSelected = true;
             }
 
-            String prefix = isSelected ? "§b§n" : "§r";
-
-            addContent(Item.create(Material.IRON_CHESTPLATE, 1, prefix + "[" + kit.getSlot() + "]",
-                    "§7LEFT -> Select",
-                    "§7SHIFT+LEFT -> Edit",
-                    "§7DROP -> Delete"), event -> {
+            addContent(Item.create(Material.IRON_CHESTPLATE, 1, MiniMessage.miniMessage().deserialize(isSelected ? "<aqua><underlined>" : "" + "[" + kit.getSlot() + "]"),
+                    Component.text("LEFT -> Select", NamedTextColor.WHITE),
+                    Component.text("SHIFT+LEFT -> Edit", NamedTextColor.WHITE),
+                    Component.text("DROP -> Delete", NamedTextColor.WHITE)), event -> {
 
                 if (event.getClick() == ClickType.LEFT) {
                     session.setSelectedKit(kit);
@@ -54,8 +61,7 @@ public class KitSelectorUi extends PaginatedFastInv {
                 } else if (event.getClick() == ClickType.DROP) {
                     plugin.getKitHandler().deleteKit(session.getSender().getUniqueId(), kit.getSlot()).thenRun(() -> {
                         Bukkit.getScheduler().runTask(plugin, () -> {
-                            session.getSender().sendMessage(plugin.getConfigHandler().getMessageFromConfig("kit-deleted")
-                                    .replace("[kit]", String.valueOf(kit.getSlot())));
+                            session.getSender().sendMessage(plugin.getConfigHandler().getMessageFromConfig("kit-deleted", Placeholder.component("[kit]", Component.text(String.valueOf(kit.getSlot())))));
                             new KitSelectorUi(plugin, session).open(session.getSender());
                         });
                     });

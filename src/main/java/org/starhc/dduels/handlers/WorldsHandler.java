@@ -5,6 +5,8 @@ import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.generator.WorldInfo;
 import org.starhc.dduels.Dduels;
 
 import java.io.File;
@@ -12,8 +14,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 public class WorldsHandler {
     private final Dduels plugin;
@@ -42,42 +47,51 @@ public class WorldsHandler {
     }
 
 
-    public World createWorldFromTemplate(String templateName) {
+    public CompletableFuture<World> createWorldFromTemplate(String templateName) {
+        CompletableFuture<World> futureWorld = new CompletableFuture<>();
         String worldName = "duel_" + UUID.randomUUID().toString().substring(0, 8);
         File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
 
-        try {
-            copyTemplate(templateName, worldFolder);
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                copyTemplate(templateName, worldFolder);
 
-            WorldCreator creator = new WorldCreator(worldName);
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    WorldCreator creator = new WorldCreator(worldName);
+                    creator.generator(new VoidGenerator());
+                    World world = Bukkit.createWorld(creator);
 
-            creator.generator(new VoidGenerator());
+                    if (world == null) {
+                        plugin.getLogger().log(Level.SEVERE, "An unknown error occurred while creating world: " + worldName);
+                        futureWorld.complete(null);
+                    }
 
-            World world = Bukkit.createWorld(creator);
+                    world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+                    world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+                    world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+                    world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+                    world.setGameRule(GameRule.FALL_DAMAGE, false);
+                    world.setGameRule(GameRule.FIRE_DAMAGE, true);
+                    world.setGameRule(GameRule.KEEP_INVENTORY, true);
+                    world.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 100);
+                    world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+                    world.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
+                    world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
 
-            if (world == null) {
-                plugin.getLogger().log(Level.SEVERE, "An unknown error occurred while creating world: " + worldName);
-                return null;
+                    plugin.getLogger().log(Level.INFO, "Created duel world: " + worldName + " from template: " + templateName);
+                    futureWorld.complete(world);
+                });
+
+
+            } catch (IOException | RuntimeException e) {
+                plugin.getLogger().log(Level.SEVERE, "An unknown error occurred while creating world: " + worldName, e);
+                futureWorld.completeExceptionally(e);
             }
 
-            world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-            world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-            world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
-            world.setGameRule(GameRule.FALL_DAMAGE, false);
-            world.setGameRule(GameRule.FIRE_DAMAGE, true);
-            world.setGameRule(GameRule.KEEP_INVENTORY, true);
-            world.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 100);
-            world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
-            world.setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
-            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        });
 
-            plugin.getLogger().log(Level.INFO, "Created duel world: " + worldName + " from template: " + templateName);
-            return world;
-        } catch (IOException | RuntimeException e) {
-            plugin.getLogger().log(Level.SEVERE, "An unknown error occurred while creating world: " + worldName, e);
-            return null;
-        }
+        return futureWorld;
+
     }
 
     /**
@@ -129,7 +143,7 @@ public class WorldsHandler {
     }
 
     private void copyRecursive(Path source, Path target) throws IOException {
-        try (java.util.stream.Stream<Path> stream = Files.walk(source)) {
+        try (Stream<Path> stream = Files.walk(source)) {
             stream.forEach(path -> {
                 try {
                     Path relative = source.relativize(path);
@@ -168,19 +182,19 @@ public class WorldsHandler {
         return folder.delete();
     }
 
-    private static class VoidGenerator extends org.bukkit.generator.ChunkGenerator {
+    private static class VoidGenerator extends ChunkGenerator {
         @Override
-        public void generateNoise(org.bukkit.generator.WorldInfo worldInfo, java.util.Random random, int x, int z, org.bukkit.generator.ChunkGenerator.ChunkData chunkData) {
+        public void generateNoise(WorldInfo worldInfo, Random random, int x, int z, ChunkData chunkData) {
             // No noise (void)
         }
 
         @Override
-        public void generateSurface(org.bukkit.generator.WorldInfo worldInfo, java.util.Random random, int x, int z, org.bukkit.generator.ChunkGenerator.ChunkData chunkData) {
+        public void generateSurface(WorldInfo worldInfo, Random random, int x, int z, ChunkData chunkData) {
             // No surface (void)
         }
 
         @Override
-        public void generateBedrock(org.bukkit.generator.WorldInfo worldInfo, java.util.Random random, int x, int z, org.bukkit.generator.ChunkGenerator.ChunkData chunkData) {
+        public void generateBedrock(WorldInfo worldInfo, Random random, int x, int z, ChunkData chunkData) {
             // No bedrock (void)
         }
 

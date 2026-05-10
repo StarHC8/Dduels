@@ -50,16 +50,16 @@ public class DuelAcceptCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        Request request = plugin.getRequestHandler().getRequest(player);
+        Request receivedRequest = plugin.getRequestHandler().getRequest(player, target);
 
-        if (request == null) {
+        if (receivedRequest == null) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("not-duelled"));
             return true;
         }
 
         plugin.getRequestHandler().acceptRequest(player, target);
 
-        DuelSession session = request.getDuelSession();
+        DuelSession session = receivedRequest.getDuelSession();
 
         plugin.getDuelHandler().newDuel(session);
         return false;

@@ -32,4 +32,4 @@ You also have to configure the duel worlds from the file maps.yml
 - [ ] Improve UIs
 - [ ] Implement leaderboard
 - [ ] /rematch command
-- [ ] Adventure support?
+- [x] Adventure support

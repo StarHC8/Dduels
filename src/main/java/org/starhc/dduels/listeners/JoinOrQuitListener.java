@@ -12,6 +12,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.Duel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class JoinOrQuitListener implements Listener {
     private Dduels plugin;
 
@@ -28,17 +31,20 @@ public class JoinOrQuitListener implements Listener {
         Location playerSpawn = spawnWorld.getSpawnLocation();
         player.teleport(playerSpawn);
 
-        plugin.getSpectatorHandler().removeSpectatorEffect(player);
+        plugin.getSpectatorHandler().removeSpectatorEffect(player, new ArrayList<>(Bukkit.getOnlinePlayers()));
 
         player.getInventory().clear();
         player.setGameMode(GameMode.ADVENTURE);
         player.setAllowFlight(true);
         player.setHealth(20);
 
-        if (!plugin.getStatsHandler().isPlayerInDatabase(player.getUniqueId())) {
-            plugin.getStatsHandler().addPlayer(player);
-        }
+        plugin.getStatsHandler().isPlayerInDatabase(player.getUniqueId()).thenAccept(isInDatabase -> {
+            if (!isInDatabase) {
+                plugin.getStatsHandler().addPlayer(player);
+            }
+        });
 
+        plugin.getRequestHandler().addPlayerToRequestsList(player);
     }
 
     @EventHandler
@@ -50,6 +56,8 @@ public class JoinOrQuitListener implements Listener {
         if (duel != null) {
             duel.leave(player);
         }
+
+        plugin.getRequestHandler().removePlayerFromRequestsList(player);
 
     }
 

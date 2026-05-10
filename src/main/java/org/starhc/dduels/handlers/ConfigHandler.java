@@ -1,9 +1,15 @@
 package org.starhc.dduels.handlers;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.starhc.dduels.Dduels;
 
 import java.io.File;
@@ -17,6 +23,7 @@ public class ConfigHandler {
     private final Map<String, FileConfiguration> configs = new HashMap<>();
     private final Map<String, File> configFiles = new HashMap<>();
     private final Map<String, String> messagesCache = new HashMap<>();
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     public ConfigHandler(Dduels plugin) {
         this.plugin = plugin;
@@ -54,7 +61,7 @@ public class ConfigHandler {
             if (value instanceof ConfigurationSection childSection) {
                 cacheSection(childSection, fullKey);
             } else if (value instanceof String str) {
-                messagesCache.put(fullKey, ChatColor.translateAlternateColorCodes('&', str));
+                messagesCache.put(fullKey, str);
             }
         }
     }
@@ -108,11 +115,21 @@ public class ConfigHandler {
         loadMessages();
     }
 
-    public String getMessageFromConfig(String messagePath) {
+    public Component getMessageFromConfig(String messagePath, TagResolver... placeholders) {
         String message = messagesCache.get(messagePath);
-        if (message != null) {
-            return message;
+        if (message == null) {
+            return miniMessage.deserialize("<red>Missing message: <white>" + messagePath);
         }
-        return "§cMissing message: " + messagePath;
+
+        return miniMessage.deserialize(message, TagResolver.resolver(placeholders));
+    }
+
+    public Component getMessageFromConfig(String messagePath) {
+        String message = messagesCache.get(messagePath);
+        if (message == null) {
+            return miniMessage.deserialize("<red>Missing message: <white>" + messagePath);
+        }
+
+        return miniMessage.deserialize(message);
     }
 }
