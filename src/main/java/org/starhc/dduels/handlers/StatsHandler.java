@@ -104,7 +104,8 @@ public class StatsHandler {
         return future;
     }
 
-    public boolean isPlayerInDatabase(UUID uuid) {
+    public CompletableFuture<Boolean> isPlayerInDatabase(UUID uuid) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
         String query = "SELECT EXISTS(SELECT 1 FROM " + plugin.getDatabase().getStatsTable() + " WHERE uuid = ?)";
 
         try (Connection conn = plugin.getDatabase().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -112,14 +113,15 @@ public class StatsHandler {
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1) == 1;
+                future.complete(rs.getInt(1) == 1);
             }
 
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "An error occurred while checking if " + uuid + " is in database: ", e);
+            future.completeExceptionally(e);
         }
 
-        return false;
+        return future;
     }
 
 }

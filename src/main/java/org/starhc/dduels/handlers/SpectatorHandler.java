@@ -9,6 +9,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.utils.Item;
 
+import java.util.List;
+
 
 public class SpectatorHandler {
     private final Dduels plugin;
@@ -17,49 +19,37 @@ public class SpectatorHandler {
         this.plugin = plugin;
     }
 
-    public void applySpectatorEffect(Player player) {
+    public void applySpectatorEffect(Player player, List<Player> duelPlayers) {
         giveSpectatorItems(player);
         player.setGameMode(GameMode.ADVENTURE);
 
-        if (player.isOnline()) {
-            player.setAllowFlight(true);
-            player.setFlying(true);
-        }
+        player.setAllowFlight(true);
+        player.setFlying(true);
 
         player.setCollidable(false);
         player.setInvulnerable(true);
         player.setCanPickupItems(false);
         player.setSilent(true);
 
-        player.setHealth(player.getMaxHealth());
+        player.setHealth(20);
         player.setFoodLevel(20);
         player.setSaturation(20);
-        player.removePotionEffect(PotionEffectType.INVISIBILITY);
 
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
 
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            if (online.getUniqueId().equals(player.getUniqueId())) continue;
-            online.hidePlayer(plugin, player);
+        for (Player duelPlayer : duelPlayers) {
+            if (duelPlayer.getUniqueId().equals(player.getUniqueId())) continue;
+            duelPlayer.hidePlayer(plugin, player);
         }
 
     }
 
-    public void removeSpectatorEffect(Player player) {
-        player.setCollidable(true);
-        player.setInvulnerable(false);
-        player.setCanPickupItems(true);
-        player.setSilent(false);
-
-        player.setHealth(player.getMaxHealth());
-        player.setFoodLevel(20);
-        player.setSaturation(20);
-
-        player.removePotionEffect(PotionEffectType.INVISIBILITY);
-        player.setFlySpeed(0.1f);
-
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            if (online.getUniqueId().equals(player.getUniqueId())) continue;
-            online.showPlayer(plugin, player);
+    public void removeSpectatorEffect(Player player, List<Player> duelPlayers) {
+        for (Player duelPlayer : duelPlayers) {
+            if (duelPlayer.getUniqueId().equals(player.getUniqueId())) continue;
+            duelPlayer.showPlayer(plugin, player);
         }
     }
 

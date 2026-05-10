@@ -144,9 +144,16 @@ public class Duel {
             sendDuelInfo(player);
             prepareInventoryDuel(player);
             teleportPlayerDuel(player);
+
+            player.setHealth(20);
+            player.setFoodLevel(20);
+            player.setSaturation(20);
             player.setGameMode(GameMode.SURVIVAL);
             player.setAllowFlight(false);
-            player.setHealth(20);
+            player.setCollidable(true);
+            player.setInvulnerable(false);
+            player.setCanPickupItems(true);
+            player.setSilent(false);
 
         }
 
@@ -173,27 +180,21 @@ public class Duel {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("results.end"));
             player.sendMessage(winner);
             player.sendMessage(" ");
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
 
         }
     }
 
     public void stop() {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            Location playerSpawn = Bukkit.getWorlds().getFirst().getSpawnLocation();
 
             for (Player player : players) {
-                prepareInventoryLobby(player);
-                player.teleportAsync(playerSpawn).thenRun(() -> {
-                    if (spectators.contains(player)) {
-                        plugin.getSpectatorHandler().removeSpectatorEffect(player);
-                    }
+                if (!alivePlayers.contains(player) && !spectators.contains(player)) return;
 
-                    player.setGameMode(GameMode.ADVENTURE);
-                    player.setAllowFlight(true);
-                    player.setHealth(20);
-                    plugin.getTeamHandler().resetPlayersNames(player);
-                });
+                if (spectators.contains(player)) {
+                    stopSpectating(player);
+                } else {
+                    plugin.getLobbyHandler().sendToLobby(player);
+                }
             }
 
             plugin.getWorldsHandler().deleteWorld(world);
@@ -302,10 +303,6 @@ public class Duel {
 
     }
 
-    public void prepareInventoryLobby(Player player) {
-        player.getInventory().clear();
-
-    }
 
     public void startSpectating(Player spectator, Player toSpectate) {
         if (!players.contains(spectator)) {
@@ -314,7 +311,7 @@ public class Duel {
         spectators.add(spectator);
 
         spectator.teleportAsync(toSpectate.getLocation()).thenRun(() -> {
-            plugin.getSpectatorHandler().applySpectatorEffect(spectator);
+            plugin.getSpectatorHandler().applySpectatorEffect(spectator, players);
         });
 
         spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("start-spectating", Placeholder.component("player", getPlayerDisplayName(toSpectate))));
@@ -327,18 +324,10 @@ public class Duel {
 
         spectators.remove(spectator);
 
-        Location playerSpawn = Bukkit.getWorlds().getFirst().getSpawnLocation();
-        spectator.teleportAsync(playerSpawn).thenRun(() -> {
-            plugin.getSpectatorHandler().removeSpectatorEffect(spectator);
-            spectator.setAllowFlight(true);
-            spectator.setFlying(true);
+        plugin.getSpectatorHandler().removeSpectatorEffect(spectator, players);
 
-        });
+        plugin.getLobbyHandler().sendToLobby(spectator);
 
-        plugin.getTeamHandler().resetPlayersNames(spectator);
-        prepareInventoryLobby(spectator);
-
-        spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("going-lobby"));
     }
 
     public void sendDuelInfo(Player player) {
