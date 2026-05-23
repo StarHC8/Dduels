@@ -1,5 +1,6 @@
 package org.starhc.dduels.handlers;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.*;
@@ -18,18 +19,23 @@ public class DuelHandler {
 
     public void newDuel(DuelSession session) {
 
-        List<Player> allPlayers = session.getAllPlayers();
+        List<UUID> allPlayers = session.getAllPlayers();
 
         boolean valid = true;
-        for (Player player : allPlayers) {
-            if (getDuel(player) != null) {
+        for (UUID uuid : allPlayers) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null && getDuel(player) != null) {
                 valid = false;
+                break;
             }
         }
 
         if (!valid) {
-            for (Player player : allPlayers) {
-                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-already-in-duel"));
+            for (UUID uuid : allPlayers) {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player != null) {
+                    player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-already-in-duel"));
+                }
             }
             return;
         }
@@ -41,7 +47,7 @@ public class DuelHandler {
 
     public Duel getDuel(Player player) {
         for (Duel duel : activeDuels) {
-            if (duel.getAlivePlayers().contains(player)) {
+            if (duel.getAlivePlayers().contains(player.getUniqueId())) {
                 return duel;
             }
         }
@@ -50,7 +56,7 @@ public class DuelHandler {
 
     public Duel getSpectatingDuel(Player player) {
         for (Duel duel : activeDuels) {
-            if (duel.getSpectators().contains(player)) {
+            if (duel.getSpectators().contains(player.getUniqueId())) {
                 return duel;
             }
         }

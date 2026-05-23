@@ -144,11 +144,7 @@ public class KitHandler {
                 future.completeExceptionally(e);
             }
         });
-        for (Kit kit : playersKits.get(uuid)) {
-            if (kit.getSlot() == slot) {
-                playersKits.get(uuid).remove(kit);
-            }
-        }
+        playersKits.get(uuid).removeIf(kit -> kit.getSlot() == slot);
 
         return future;
     }

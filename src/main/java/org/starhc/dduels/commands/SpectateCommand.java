@@ -40,7 +40,7 @@ public class SpectateCommand implements CommandExecutor, TabCompleter {
                 return false;
             }
 
-            if (!playerDuel.getSpectators().contains(player)) {
+            if (!playerDuel.getSpectators().contains(player.getUniqueId())) {
                 player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("not-a-spectator"));
                 return false;
             }
@@ -68,7 +68,7 @@ public class SpectateCommand implements CommandExecutor, TabCompleter {
                 return false;
             }
 
-            if (!targetDuel.getSpectators().contains(player)) {
+            if (!targetDuel.getSpectators().contains(player.getUniqueId())) {
                 targetDuel.startSpectating(player, target);
             } else {
                 player.teleport(target.getLocation());

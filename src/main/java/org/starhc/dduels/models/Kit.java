@@ -1,7 +1,6 @@
 package org.starhc.dduels.models;
 
 import org.bukkit.inventory.ItemStack;
-import org.starhc.dduels.utils.Item;
 
 import java.util.UUID;
 

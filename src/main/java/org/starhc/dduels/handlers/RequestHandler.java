@@ -12,7 +12,7 @@ import java.util.*;
 
 public class RequestHandler {
     private final Dduels plugin;
-    private final Map<UUID, List<Request>> pendingRequests = new HashMap<>();
+    private final Map<UUID, List<DuelSession>> pendingRequests = new HashMap<>();
 
     public RequestHandler(Dduels plugin) {
         this.plugin = plugin;
@@ -20,8 +20,8 @@ public class RequestHandler {
 
     public void sendRequest(Player sender, Player receiver, DuelSession session) {
 
-        Request request = new Request(sender.getUniqueId(), session);
-        pendingRequests.get(receiver.getUniqueId()).add(request);
+        List<DuelSession> receiverRequests = pendingRequests.get(receiver.getUniqueId());
+        receiverRequests.add(session);
 
         String mapName = session.getSelectedMapTemplate().get().getTemplateDisplayName();
         String kitName = "[" + session.getSelectedKit().get().getSlot() + "]";
@@ -55,28 +55,35 @@ public class RequestHandler {
 
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (pendingRequests.get(receiver.getUniqueId()).contains(request)) {
-                pendingRequests.get(receiver.getUniqueId()).remove(request);
+            List<DuelSession> currentRequests = pendingRequests.get(receiver.getUniqueId());
+            if (currentRequests != null && currentRequests.contains(session)) {
+                currentRequests.remove(session);
                 sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-to", Placeholder.component("player", Component.text(receiver.getName()))));
                 receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("expired-request-from", Placeholder.component("player", Component.text(sender.getName()))));
             }
         }, 20 * 60L);
     }
 
-    public Request getRequest(Player receiver, Player target) {
-        Request receivedRequest = null;
-        for (Request request : pendingRequests.get(receiver.getUniqueId())) {
-            if (request.getSender().equals(target.getUniqueId())) {
-                receivedRequest = request;
+    public DuelSession getRequest(Player receiver, Player target) {
+        List<DuelSession> receiverRequests = pendingRequests.get(receiver.getUniqueId());
+        if (receiverRequests == null) return null;
+
+        for (DuelSession session : receiverRequests) {
+            if (session.getSender().equals(target.getUniqueId())) {
+                return session;
             }
         }
-        return receivedRequest;
+        return null;
     }
 
     public void acceptRequest(Player receiver, Player sender) {
         sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("accepted-request-from", Placeholder.component("player", Component.text(receiver.getName()))));
         receiver.sendMessage(plugin.getConfigHandler().getMessageFromConfig("accepted-request-to", Placeholder.component("player", Component.text(sender.getName()))));
-        pendingRequests.get(receiver.getUniqueId()).remove(getRequest(receiver, sender));
+        
+        List<DuelSession> receiverRequests = pendingRequests.get(receiver.getUniqueId());
+        if (receiverRequests != null) {
+            receiverRequests.remove(getRequest(receiver, sender));
+        }
     }
 
     public void addPlayerToRequestsList(Player player) {

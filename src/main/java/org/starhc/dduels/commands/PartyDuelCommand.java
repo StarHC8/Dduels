@@ -1,6 +1,5 @@
 package org.starhc.dduels.commands;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,6 +16,7 @@ import org.starhc.partyManager.models.Party;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PartyDuelCommand implements CommandExecutor, TabCompleter {
@@ -58,12 +58,9 @@ public class PartyDuelCommand implements CommandExecutor, TabCompleter {
         }
 
 
-        List<Player> duelPlayers = new ArrayList<>(party.getMembers()
-                .stream()
-                .map(Bukkit::getPlayer)
-                .toList());
+        List<UUID> duelPlayers = new ArrayList<>(party.getMembers());
 
-        DuelSession session = new DuelSession(player, duelPlayers);
+        DuelSession session = new DuelSession(player.getUniqueId(), duelPlayers);
 
         session.setDuelType(DuelType.FFA);
 

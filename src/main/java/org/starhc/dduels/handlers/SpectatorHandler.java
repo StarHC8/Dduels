@@ -1,11 +1,9 @@
 package org.starhc.dduels.handlers;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.utils.Item;
 

@@ -5,7 +5,9 @@ import fr.mrmicky.fastinv.PaginatedFastInv;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.DuelSession;
 import org.starhc.dduels.models.MapTemplate;
@@ -29,17 +31,20 @@ public class MapSelectorUi extends PaginatedFastInv {
     public MapSelectorUi(Dduels plugin, DuelSession session) {
         super(45, PlainTextComponentSerializer.plainText().serialize(plugin.getConfigHandler().getMessageFromConfig("ui-names.map-selector")));
 
+        Player sender = Bukkit.getPlayer(session.getSender());
+        if (sender == null) return;
+
         previousPageItem(SLOT_PREVIOUS_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
         nextPageItem(SLOT_NEXT_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
 
         List<MapTemplate> mapTemplates = plugin.getMapTemplateHandler().getMapTemplates();
 
         for (MapTemplate mapTemplate : mapTemplates) {
-            boolean isSelected = mapTemplate.equals(session.getSelectedMapTemplate());
+            boolean isSelected = mapTemplate.equals(session.getSelectedMapTemplate().orElse(null));
 
-            addContent(Item.create(Material.FILLED_MAP, 1, MiniMessage.miniMessage().deserialize(isSelected ? "<aqua><underlined>" : "" + mapTemplate.getTemplateDisplayName())), e -> {
+            addContent(Item.create(Material.FILLED_MAP, 1, MiniMessage.miniMessage().deserialize((isSelected ? "<aqua><underlined>" : "") + mapTemplate.getTemplateDisplayName())), e -> {
                 session.setSelectedMapTemplate(mapTemplate);
-                new DuelUi(plugin, session).open(session.getSender());
+                new DuelUi(plugin, session).open(sender);
             });
         }
 

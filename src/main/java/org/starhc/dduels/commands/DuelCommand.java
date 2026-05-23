@@ -74,7 +74,7 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        DuelSession session = new DuelSession(player, List.of(player, target));
+        DuelSession session = new DuelSession(player.getUniqueId(), List.of(player.getUniqueId(), target.getUniqueId()));
 
         session.setSelectedMapTemplate(plugin.getMapTemplateHandler().getMapTemplates().getFirst());
 

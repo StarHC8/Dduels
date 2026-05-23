@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.DuelSession;
-import org.starhc.dduels.models.Request;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,18 +49,16 @@ public class DuelAcceptCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        Request receivedRequest = plugin.getRequestHandler().getRequest(player, target);
+        DuelSession receivedRequestDuelSession = plugin.getRequestHandler().getRequest(player, target);
 
-        if (receivedRequest == null) {
+        if (receivedRequestDuelSession == null) {
             player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("not-duelled"));
             return true;
         }
 
         plugin.getRequestHandler().acceptRequest(player, target);
 
-        DuelSession session = receivedRequest.getDuelSession();
-
-        plugin.getDuelHandler().newDuel(session);
+        plugin.getDuelHandler().newDuel(receivedRequestDuelSession);
         return false;
     }
 

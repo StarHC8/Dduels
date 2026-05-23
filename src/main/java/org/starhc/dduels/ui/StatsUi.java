@@ -7,13 +7,9 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.starhc.dduels.Dduels;
-import org.starhc.dduels.models.DuelSession;
 import org.starhc.dduels.models.PlayerStats;
 import org.starhc.dduels.utils.Item;
-
-import java.util.Map;
 
 public class StatsUi extends FastInv {
 

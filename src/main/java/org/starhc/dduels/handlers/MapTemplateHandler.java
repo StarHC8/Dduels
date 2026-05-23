@@ -1,9 +1,5 @@
 package org.starhc.dduels.handlers;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.starhc.dduels.Dduels;

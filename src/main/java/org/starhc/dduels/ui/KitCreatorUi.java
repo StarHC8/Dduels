@@ -3,7 +3,6 @@ package org.starhc.dduels.ui;
 import fr.mrmicky.fastinv.InventoryScheme;
 import fr.mrmicky.fastinv.PaginatedFastInv;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -16,7 +15,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.DuelSession;
@@ -25,7 +23,6 @@ import org.starhc.dduels.utils.Item;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 import static org.starhc.dduels.utils.EnchantmentsUtils.getValidEnchantments;
 import static org.starhc.dduels.utils.KitItemsList.*;
@@ -80,9 +77,11 @@ public class KitCreatorUi extends PaginatedFastInv {
     }
 
     private void setupPlayerInventory() {
-        Player player = session.getSender();
-        player.getInventory().clear();
-        player.getInventory().setContents(selectedKit.getContents());
+        Player player = Bukkit.getPlayer(session.getSender());
+        if (player != null) {
+            player.getInventory().clear();
+            player.getInventory().setContents(selectedKit.getContents());
+        }
     }
 
     private void setupArmorSlots() {
@@ -122,7 +121,9 @@ public class KitCreatorUi extends PaginatedFastInv {
 
     private void setupActionButtons() {
         setItem(SLOT_SAVE, Item.create(Material.LIME_WOOL, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.save-item")), event -> {
-            Player player = session.getSender();
+            Player player = Bukkit.getPlayer(session.getSender());
+            if (player == null) return;
+
             ItemStack[] inventoryItemsToSave = player.getInventory().getStorageContents();
             ItemStack[] armorItemsToSave = new ItemStack[4];
             ItemStack offHandItemToSave;
@@ -197,7 +198,7 @@ public class KitCreatorUi extends PaginatedFastInv {
                     ItemStack clone = itemStack.clone();
                     ItemMeta cloneMeta = clone.getItemMeta();
                     if (cloneMeta != null) {
-                        cloneMeta.setLore(null);
+                        cloneMeta.lore(null);
                         clone.setItemMeta(cloneMeta);
                     }
                     event.getWhoClicked().getInventory().addItem(clone);

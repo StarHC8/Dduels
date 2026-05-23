@@ -9,6 +9,7 @@ import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.Duel;
 
 import java.util.List;
+import java.util.UUID;
 
 public class TeamHandler {
     private Dduels plugin;
@@ -19,10 +20,15 @@ public class TeamHandler {
 
     public boolean areInSameTeam(Player player, Player damager) {
         Duel duel = plugin.getDuelHandler().getDuel(damager);
-        return (duel.getTeamA().contains(player) && duel.getTeamA().contains(damager)) || (duel.getTeamB().contains(player) && duel.getTeamB().contains(damager));
+        if (duel == null) return false;
+        
+        UUID playerUUID = player.getUniqueId();
+        UUID damagerUUID = damager.getUniqueId();
+        
+        return (duel.getTeamA().contains(playerUUID) && duel.getTeamA().contains(damagerUUID)) || (duel.getTeamB().contains(playerUUID) && duel.getTeamB().contains(damagerUUID));
     }
 
-    public void applyDuelTeamName(List<Player> players, List<Player> teamAPlayers, List<Player> teamBPlayers) {
+    public void applyDuelTeamName(List<UUID> players, List<UUID> teamA_UUIDs, List<UUID> teamB_UUIDs) {
         Scoreboard duelBoard = Bukkit.getScoreboardManager().getNewScoreboard();
 
         Team teamA = duelBoard.registerNewTeam("a");
@@ -31,16 +37,21 @@ public class TeamHandler {
         Team teamB = duelBoard.registerNewTeam("b");
         teamB.setColor(ChatColor.BLUE);
 
-        for (Player p : teamAPlayers) {
-            teamA.addEntry(p.getName());
+        for (UUID uuid : teamA_UUIDs) {
+            String name = Bukkit.getOfflinePlayer(uuid).getName();
+            if (name != null) teamA.addEntry(name);
         }
 
-        for (Player p : teamBPlayers) {
-            teamB.addEntry(p.getName());
+        for (UUID uuid : teamB_UUIDs) {
+            String name = Bukkit.getOfflinePlayer(uuid).getName();
+            if (name != null) teamB.addEntry(name);
         }
 
-        for (Player player : players) {
-            player.setScoreboard(duelBoard);
+        for (UUID uuid : players) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                player.setScoreboard(duelBoard);
+            }
         }
 
     }

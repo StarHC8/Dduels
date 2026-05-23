@@ -3,6 +3,7 @@ package org.starhc.dduels.ui;
 import fr.mrmicky.fastinv.FastInv;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -12,12 +13,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.DuelSession;
-import org.starhc.dduels.models.MapTemplate;
 import org.starhc.dduels.utils.Item;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class TeamManagerUi extends FastInv {
 
@@ -56,6 +57,8 @@ public class TeamManagerUi extends FastInv {
     }
 
     private void setupItems() {
+        Player sender = Bukkit.getPlayer(session.getSender());
+        if (sender == null) return;
 
         setItems(NOT_USED_SLOTS, Item.create(Material.GRAY_STAINED_GLASS_PANE, 1, Component.text("")));
 
@@ -66,11 +69,11 @@ public class TeamManagerUi extends FastInv {
 
         setItem(SHUFFLE_SLOT, Item.create(Material.ITEM_FRAME, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.team-manager-shuffle-item")), event -> {
             event.getWhoClicked().setItemOnCursor(null);
-            List<Player> allPlayers = new ArrayList<>(session.getAllPlayers());
+            List<UUID> allPlayers = new ArrayList<>(session.getAllPlayers());
             Collections.shuffle(allPlayers);
 
-            List<Player> teamAToSave = new ArrayList<>(allPlayers.subList(0, allPlayers.size() / 2));
-            List<Player> teamBToSave = new ArrayList<>(allPlayers.subList(allPlayers.size() / 2, allPlayers.size()));
+            List<UUID> teamAToSave = new ArrayList<>(allPlayers.subList(0, allPlayers.size() / 2));
+            List<UUID> teamBToSave = new ArrayList<>(allPlayers.subList(allPlayers.size() / 2, allPlayers.size()));
 
             session.setTeamA(teamAToSave);
             session.setTeamB(teamBToSave);
@@ -85,52 +88,48 @@ public class TeamManagerUi extends FastInv {
                 return;
             }
 
-            List<Player> teamAToSave = new ArrayList<>();
-            List<Player> teamBToSave = new ArrayList<>();
+            List<UUID> teamAToSave = new ArrayList<>();
+            List<UUID> teamBToSave = new ArrayList<>();
 
             for (int i = 0; i < 24; i++) {
                 ItemStack playerAItem = clickedInventory.getItem(TEAM_A_SLOTS.get(i));
                 ItemStack playerBItem = clickedInventory.getItem(TEAM_B_SLOTS.get(i));
 
-                if (playerAItem != null) {
-                    SkullMeta skullMeta = (SkullMeta) playerAItem.getItemMeta();
-                    Player skullPlayer = skullMeta.getOwningPlayer().getPlayer();
-
-                    if (skullPlayer != null) {
-                        teamAToSave.add(skullPlayer);
+                if (playerAItem != null && playerAItem.getItemMeta() instanceof SkullMeta skullMeta) {
+                    if (skullMeta.getOwningPlayer() != null) {
+                        teamAToSave.add(skullMeta.getOwningPlayer().getUniqueId());
                     }
                 }
 
-                if (playerBItem != null) {
-                    SkullMeta skullMeta = (SkullMeta) playerBItem.getItemMeta();
-                    Player skullPlayer = skullMeta.getOwningPlayer().getPlayer();
-
-                    if (skullPlayer != null) {
-                        teamBToSave.add(skullPlayer);
+                if (playerBItem != null && playerBItem.getItemMeta() instanceof SkullMeta skullMeta) {
+                    if (skullMeta.getOwningPlayer() != null) {
+                        teamBToSave.add(skullMeta.getOwningPlayer().getUniqueId());
                     }
                 }
             }
 
             if (teamAToSave.isEmpty() || teamBToSave.isEmpty()) {
-                session.getSender().sendMessage(plugin.getConfigHandler().getMessageFromConfig("empty-team"));
+                sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("empty-team"));
                 return;
             }
 
             session.setTeamA(teamAToSave);
             session.setTeamB(teamBToSave);
 
-            new DuelUi(plugin, session).open(session.getSender());
+            new DuelUi(plugin, session).open(sender);
         });
 
         for (int i = 0; i < 24; i++) {
             if (i < session.getTeamA().size()) {
-                Player playerA = session.getTeamA().get(i);
-                setItem(TEAM_A_SLOTS.get(i), Item.createPlayerHead(playerA.getName(), 1, Component.text(playerA.getName())));
+                UUID playerA = session.getTeamA().get(i);
+                String name = Bukkit.getOfflinePlayer(playerA).getName();
+                setItem(TEAM_A_SLOTS.get(i), Item.createPlayerHead(name, 1, Component.text(name != null ? name : "Unknown")));
             }
 
             if (i < session.getTeamB().size()) {
-                Player playerB = session.getTeamB().get(i);
-                setItem(TEAM_B_SLOTS.get(i), Item.createPlayerHead(playerB.getName(), 1, Component.text(playerB.getName())));
+                UUID playerB = session.getTeamB().get(i);
+                String name = Bukkit.getOfflinePlayer(playerB).getName();
+                setItem(TEAM_B_SLOTS.get(i), Item.createPlayerHead(name, 1, Component.text(name != null ? name : "Unknown")));
             }
         }
 
