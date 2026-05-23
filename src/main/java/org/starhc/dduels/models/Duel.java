@@ -1,40 +1,33 @@
 package org.starhc.dduels.models;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.starhc.dduels.Dduels;
 import org.starhc.dduels.enums.DuelType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Duel {
     private Dduels plugin;
     private DuelSession session;
-    private List<Player> players;
+    private List<UUID> players;
     private MapTemplate mapTemplate;
     private Kit kit;
     private World world;
 
-    private List<Player> alivePlayers;
-    private List<Player> spectators = new ArrayList<>();
-    private List<Player> deads = new ArrayList<>();
-    private Map<Player, Spawn> playersSpawns = new HashMap<>();
+    private List<UUID> alivePlayers;
+    private List<UUID> spectators = new ArrayList<>();
+    private List<UUID> deads = new ArrayList<>();
+    private Map<UUID, Spawn> playersSpawns = new HashMap<>();
     private DuelType duelType;
     private boolean isActive = false;
 
-    private List<Player> teamA;
-    private List<Player> teamB;
+    private List<UUID> teamA;
+    private List<UUID> teamB;
 
     public Duel(Dduels plugin, DuelSession session) {
         this.plugin = plugin;
@@ -48,32 +41,32 @@ public class Duel {
         this.alivePlayers = new ArrayList<>(List.copyOf(players));
     }
 
-    public List<Player> getPlayers() {
+    public List<UUID> getPlayers() {
         return players;
     }
 
-    public List<Player> getAlivePlayers() {
+    public List<UUID> getAlivePlayers() {
         return alivePlayers;
     }
 
-    public List<Player> getDeads() {
+    public List<UUID> getDeads() {
         return deads;
     }
 
-    public List<Player> getSpectators() {
+    public List<UUID> getSpectators() {
         return spectators;
     }
 
-    public List<Player> getTeamA() {
+    public List<UUID> getTeamA() {
         return teamA;
     }
 
-    public List<Player> getTeamB() {
+    public List<UUID> getTeamB() {
         return teamB;
     }
 
-    public List<Player> getPlayerTeam(Player player) {
-        if (teamA.contains(player)) {
+    public List<UUID> getPlayerTeam(UUID playerUUID) {
+        if (teamA.contains(playerUUID)) {
             return teamA;
         } else {
             return teamB;
@@ -97,14 +90,20 @@ public class Duel {
     }
 
     public void init() {
-        for (Player player : players) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("loading-duel"));
+        for (UUID uuid : players) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("loading-duel"));
+            }
         }
 
         plugin.getWorldsHandler().createWorldFromTemplate(mapTemplate.getTemplateName()).thenAccept(createdWorld -> {
             if (createdWorld == null) {
-                for (Player player : players) {
-                    player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("system-errors.world-error"));
+                for (UUID uuid : players) {
+                    Player player = Bukkit.getPlayer(uuid);
+                    if (player != null) {
+                        player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("system-errors.world-error"));
+                    }
                 }
                 plugin.getDuelHandler().deleteDuel(this);
                 return;
@@ -139,7 +138,9 @@ public class Duel {
             }
         }
 
-        for (Player player : players) {
+        for (UUID uuid : players) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null) continue;
 
             sendDuelInfo(player);
             prepareInventoryDuel(player);
@@ -159,20 +160,27 @@ public class Duel {
 
     }
 
-    public void manageWinners(List<Player> winners) {
+    public void manageWinners(List<UUID> winners) {
         Component winner;
         if (duelType.equals(DuelType.SPLIT)) {
             winner = plugin.getConfigHandler().getMessageFromConfig("results.winning-team").append(Component.text(getPlayerTeam(alivePlayers.getFirst()).stream()
-                    .map(Player::getName)
+                    .map(uuid -> {
+                        Player p = Bukkit.getPlayer(uuid);
+                        return p != null ? p.getName() : "Unknown";
+                    })
                     .collect(Collectors.joining(", "))));
         } else {
-            winner = plugin.getConfigHandler().getMessageFromConfig("results.winner").append(Component.text(alivePlayers.getFirst().getName()));
+            Player winnerPlayer = Bukkit.getPlayer(alivePlayers.getFirst());
+            winner = plugin.getConfigHandler().getMessageFromConfig("results.winner").append(Component.text(winnerPlayer != null ? winnerPlayer.getName() : "Unknown"));
         }
 
-        for (Player player : players) {
-            if (winners.contains(player)) {
+        for (UUID uuid : players) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null) continue;
+
+            if (winners.contains(uuid)) {
                 plugin.getStatsHandler().addWin(player);
-            } else if (deads.contains(player) && !winners.contains(player)) {
+            } else if (deads.contains(uuid) && !winners.contains(uuid)) {
                 plugin.getStatsHandler().addLoss(player);
             }
 
@@ -187,10 +195,13 @@ public class Duel {
     public void stop() {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
 
-            for (Player player : players) {
-                if (!alivePlayers.contains(player) && !spectators.contains(player)) return;
+            for (UUID uuid : new ArrayList<>(players)) {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player == null) continue;
 
-                if (spectators.contains(player)) {
+                if (!alivePlayers.contains(uuid) && !spectators.contains(uuid)) continue;
+
+                if (spectators.contains(uuid)) {
                     stopSpectating(player);
                 } else {
                     plugin.getLobbyHandler().sendToLobby(player);
@@ -202,61 +213,67 @@ public class Duel {
         }, 20 * 5L);
     }
 
+    private void removeAlivePlayer(Player player) {
+        alivePlayers.remove(player.getUniqueId());
+        deads.add(player.getUniqueId());
+        checkForDuelEnd();
+    }
+
     public void kill(Player killed, Player killer) {
         if (killed.equals(killer)) {
             death(killed);
             return;
         }
 
-        alivePlayers.remove(killed);
-
-        for (Player player : players) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig(
-                    "player-killed-player",
-                    Placeholder.component("killer", getPlayerDisplayName(killer)),
-                    Placeholder.component("killed", getPlayerDisplayName(killed))
-            ));
+        for (UUID uuid : players) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig(
+                        "player-killed-player",
+                        Placeholder.component("killer", getPlayerDisplayName(killer)),
+                        Placeholder.component("killed", getPlayerDisplayName(killed))
+                ));
+            }
         }
 
-        deads.add(killed);
         startSpectating(killed, killer);
-
-        checkForDuelEnd();
-
+        removeAlivePlayer(killed);
     }
 
     public void death(Player dead) {
-        alivePlayers.remove(dead);
-
-        for (Player player : players) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-died", Placeholder.component("player", getPlayerDisplayName(dead))));
+        for (UUID uuid : players) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-died", Placeholder.component("player", getPlayerDisplayName(dead))));
+            }
         }
 
-        deads.add(dead);
+        Player firstAlive = Bukkit.getPlayer(alivePlayers.getFirst());
+        if (firstAlive != null) {
+            startSpectating(dead, firstAlive);
+        }
 
-        startSpectating(dead, alivePlayers.getFirst());
-
-        checkForDuelEnd();
-
+        removeAlivePlayer(dead);
     }
 
     public void leave(Player leaver) {
-        alivePlayers.remove(leaver);
-
-        for (Player player : players) {
-            player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-left-duel", Placeholder.component("player", getPlayerDisplayName(leaver))));
+        for (UUID uuid : players) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                player.sendMessage(plugin.getConfigHandler().getMessageFromConfig("player-left-duel", Placeholder.component("player", getPlayerDisplayName(leaver))));
+            }
         }
-
-        deads.add(leaver);
 
         if (leaver.isOnline()) {
-            startSpectating(leaver, alivePlayers.getFirst());
+            Player firstAlive = Bukkit.getPlayer(alivePlayers.getFirst());
+            if (firstAlive != null) {
+                startSpectating(leaver, firstAlive);
+            }
         } else {
-            alivePlayers.remove(leaver);
-            players.remove(leaver);
+            players.remove(leaver.getUniqueId());
         }
 
-        checkForDuelEnd();
+        removeAlivePlayer(leaver);
 
     }
 
@@ -289,7 +306,8 @@ public class Duel {
     }
 
     public void teleportPlayerDuel(Player player) {
-        Spawn spawn = playersSpawns.get(player);
+        Spawn spawn = playersSpawns.get(player.getUniqueId());
+        if (spawn == null) return;
 
         Location playerSpawn = new Location(
                 world,
@@ -305,26 +323,34 @@ public class Duel {
 
 
     public void startSpectating(Player spectator, Player toSpectate) {
-        if (!players.contains(spectator)) {
-            players.add(spectator);
+        if (!players.contains(spectator.getUniqueId())) {
+            players.add(spectator.getUniqueId());
         }
-        spectators.add(spectator);
+        spectators.add(spectator.getUniqueId());
 
         spectator.teleportAsync(toSpectate.getLocation()).thenRun(() -> {
-            plugin.getSpectatorHandler().applySpectatorEffect(spectator, players);
+            List<Player> playerObjects = players.stream()
+                    .map(Bukkit::getPlayer)
+                    .filter(Objects::nonNull)
+                    .toList();
+            plugin.getSpectatorHandler().applySpectatorEffect(spectator, playerObjects);
         });
 
         spectator.sendMessage(plugin.getConfigHandler().getMessageFromConfig("start-spectating", Placeholder.component("player", getPlayerDisplayName(toSpectate))));
     }
 
     public void stopSpectating(Player spectator) {
-        if (!deads.contains(spectator)) {
-            players.remove(spectator);
+        if (!deads.contains(spectator.getUniqueId())) {
+            players.remove(spectator.getUniqueId());
         }
 
-        spectators.remove(spectator);
+        spectators.remove(spectator.getUniqueId());
 
-        plugin.getSpectatorHandler().removeSpectatorEffect(spectator, players);
+        List<Player> playerObjects = players.stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .toList();
+        plugin.getSpectatorHandler().removeSpectatorEffect(spectator, playerObjects);
 
         plugin.getLobbyHandler().sendToLobby(spectator);
 
@@ -351,7 +377,7 @@ public class Duel {
         if (duelType.equals(DuelType.FFA)) {
             return Component.text(player.getName());
         } else {
-            return Component.text(player.getName(), (getPlayerTeam(player).equals(teamA) ? NamedTextColor.RED : NamedTextColor.BLUE));
+            return Component.text(player.getName(), (getPlayerTeam(player.getUniqueId()).equals(teamA) ? NamedTextColor.RED : NamedTextColor.BLUE));
 
         }
     }

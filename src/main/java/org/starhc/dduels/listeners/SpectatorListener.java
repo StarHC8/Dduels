@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -13,8 +12,6 @@ import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.Duel;
 import org.starhc.dduels.ui.FlySpeedUi;
 import org.starhc.dduels.ui.SpectNavigatorUi;
-
-import java.util.logging.Level;
 
 public class SpectatorListener implements Listener {
     private Dduels plugin;

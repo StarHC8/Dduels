@@ -9,6 +9,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.starhc.dduels.Dduels;
@@ -17,7 +18,6 @@ import org.starhc.dduels.models.Kit;
 import org.starhc.dduels.utils.Item;
 
 import java.util.List;
-import java.util.Map;
 
 public class KitSelectorUi extends PaginatedFastInv {
 
@@ -34,10 +34,13 @@ public class KitSelectorUi extends PaginatedFastInv {
     public KitSelectorUi(Dduels plugin, DuelSession session) {
         super(45, PlainTextComponentSerializer.plainText().serialize(plugin.getConfigHandler().getMessageFromConfig("ui-names.kit-selector")));
 
+        Player sender = Bukkit.getPlayer(session.getSender());
+        if (sender == null) return;
+
         previousPageItem(SLOT_PREVIOUS_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
         nextPageItem(SLOT_NEXT_PAGE, p -> Item.create(Material.ARROW, 1, Component.text("Page " + p + "/" + lastPage())));
 
-        List<Kit> kits = plugin.getKitHandler().getKits(session.getSender().getUniqueId());
+        List<Kit> kits = plugin.getKitHandler().getKits(session.getSender());
 
         for (Kit kit : kits) {
 
@@ -46,23 +49,23 @@ public class KitSelectorUi extends PaginatedFastInv {
                 isSelected = true;
             }
 
-            addContent(Item.create(Material.IRON_CHESTPLATE, 1, MiniMessage.miniMessage().deserialize(isSelected ? "<aqua><underlined>" : "" + "[" + kit.getSlot() + "]"),
+            addContent(Item.create(Material.IRON_CHESTPLATE, 1, MiniMessage.miniMessage().deserialize((isSelected ? "<aqua><underlined>" : "") + "[" + kit.getSlot() + "]"),
                     Component.text("LEFT -> Select", NamedTextColor.WHITE),
                     Component.text("SHIFT+LEFT -> Edit", NamedTextColor.WHITE),
                     Component.text("DROP -> Delete", NamedTextColor.WHITE)), event -> {
 
                 if (event.getClick() == ClickType.LEFT) {
                     session.setSelectedKit(kit);
-                    new DuelUi(plugin, session).open(session.getSender());
+                    new DuelUi(plugin, session).open(sender);
 
                 } else if (event.getClick() == ClickType.SHIFT_LEFT) {
-                    new KitCreatorUi(plugin, session, kit).open(session.getSender());
+                    new KitCreatorUi(plugin, session, kit).open(sender);
 
                 } else if (event.getClick() == ClickType.DROP) {
-                    plugin.getKitHandler().deleteKit(session.getSender().getUniqueId(), kit.getSlot()).thenRun(() -> {
+                    plugin.getKitHandler().deleteKit(session.getSender(), kit.getSlot()).thenRun(() -> {
                         Bukkit.getScheduler().runTask(plugin, () -> {
-                            session.getSender().sendMessage(plugin.getConfigHandler().getMessageFromConfig("kit-deleted", Placeholder.component("[kit]", Component.text(String.valueOf(kit.getSlot())))));
-                            new KitSelectorUi(plugin, session).open(session.getSender());
+                            sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("kit-deleted", Placeholder.component("kit", Component.text(String.valueOf(kit.getSlot())))));
+                            new KitSelectorUi(plugin, session).open(sender);
                         });
                     });
                 }
@@ -76,8 +79,8 @@ public class KitSelectorUi extends PaginatedFastInv {
                 lastKitIndex = Math.max(kit.getSlot(), lastKitIndex);
             }
 
-            Kit newKit = new Kit(session.getSender().getUniqueId(), lastKitIndex + 1, new ItemStack[36], new ItemStack[4], null);
-            new KitCreatorUi(plugin, session, newKit).open(session.getSender());
+            Kit newKit = new Kit(session.getSender(), lastKitIndex + 1, new ItemStack[36], new ItemStack[4], null);
+            new KitCreatorUi(plugin, session, newKit).open(sender);
         });
 
         SCHEME.apply(this);

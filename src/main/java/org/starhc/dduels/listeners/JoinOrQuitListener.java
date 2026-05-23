@@ -13,7 +13,6 @@ import org.starhc.dduels.Dduels;
 import org.starhc.dduels.models.Duel;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class JoinOrQuitListener implements Listener {
     private Dduels plugin;

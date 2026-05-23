@@ -4,6 +4,7 @@ import fr.mrmicky.fastinv.FastInv;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -14,6 +15,7 @@ import org.starhc.dduels.models.MapTemplate;
 import org.starhc.dduels.utils.Item;
 
 import java.util.List;
+import java.util.UUID;
 
 public class DuelUi extends FastInv {
 
@@ -33,7 +35,7 @@ public class DuelUi extends FastInv {
         this.session = session;
 
         if (session.getSelectedKit().isEmpty()) {
-            plugin.getKitHandler().getKits(session.getSender().getUniqueId()).stream()
+            plugin.getKitHandler().getKits(session.getSender()).stream()
                     .findFirst()
                     .ifPresent(session::setSelectedKit);
         }
@@ -43,11 +45,14 @@ public class DuelUi extends FastInv {
     }
 
     private void setupItems() {
+        Player sender = Bukkit.getPlayer(session.getSender());
+        if (sender == null) return;
+
         setItems(SLOTS_SEND,
                 Item.create(Material.LIME_STAINED_GLASS_PANE, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.send-item")),
                 event -> {
                     if (session.getSelectedKit().isEmpty()) {
-                        session.getSender().sendMessage(plugin.getConfigHandler().getMessageFromConfig("system-errors.no-kit-available"));
+                        sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("system-errors.no-kit-available"));
                         return;
                     }
                     sendDuelRequest();
@@ -56,16 +61,17 @@ public class DuelUi extends FastInv {
         setItems(SLOTS_CANCEL,
                 Item.create(Material.RED_STAINED_GLASS_PANE, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.cancel-item")),
                 event -> {
-                    session.getSender().sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-cancelled"));
-                    session.getSender().closeInventory();
+                    sender.sendMessage(plugin.getConfigHandler().getMessageFromConfig("duel-cancelled"));
+                    sender.closeInventory();
                 });
 
 
         if (session.getAllPlayers().size() == 2) {
-            String enemyName = session.getAllPlayers().stream().filter(player -> !player.equals(session.getSender())).findFirst().get().getName();
+            UUID enemyUUID = session.getAllPlayers().stream().filter(uuid -> !uuid.equals(session.getSender())).findFirst().get();
+            String enemyName = Bukkit.getOfflinePlayer(enemyUUID).getName();
 
             setItem(SLOT_PLAYERS, Item.createPlayerHead(enemyName, 1,
-                    plugin.getConfigHandler().getMessageFromConfig("items-names.enemy-item", Placeholder.component("player", Component.text(enemyName)))));
+                    plugin.getConfigHandler().getMessageFromConfig("items-names.enemy-item", Placeholder.component("player", Component.text(enemyName != null ? enemyName : "Unknown")))));
 
         } else {
             boolean isFfa = session.getDuelType().equals(DuelType.FFA);
@@ -84,7 +90,7 @@ public class DuelUi extends FastInv {
             if (!isFfa) {
                 setItem(SLOT_PLAYERS, Item.create(Material.BLUE_BANNER, 1,
                         plugin.getConfigHandler().getMessageFromConfig("items-names.team-manager")), event -> {
-                    new TeamManagerUi(plugin, session).open(session.getSender());
+                    new TeamManagerUi(plugin, session).open(sender);
                 });
             } else {
                 setItem(SLOT_PLAYERS, null);
@@ -94,32 +100,38 @@ public class DuelUi extends FastInv {
 
         MapTemplate currentMap = session.getSelectedMapTemplate().get();
         setItem(SLOT_MAP, Item.create(Material.GRASS_BLOCK, 1, plugin.getConfigHandler().getMessageFromConfig("items-names.map-selector", Placeholder.component("map", Component.text(currentMap.getTemplateDisplayName())))),
-                event -> new MapSelectorUi(plugin, session).open(session.getSender()));
+                event -> new MapSelectorUi(plugin, session).open(sender));
 
         String kitDisplay = session.getSelectedKit().map(k -> "[" + k.getSlot() + "]").orElse("[]");
         setItem(SLOT_KIT, Item.create(Material.IRON_CHESTPLATE, 1,
                         plugin.getConfigHandler().getMessageFromConfig("items-names.kit-selector", Placeholder.component("kit", Component.text(kitDisplay)))),
-                event -> new KitSelectorUi(plugin, session).open(session.getSender()));
+                event -> new KitSelectorUi(plugin, session).open(sender));
 
 
     }
 
     private void sendDuelRequest() {
-        List<Player> allPlayers = session.getAllPlayers();
+        Player sender = Bukkit.getPlayer(session.getSender());
+        if (sender == null) return;
+
+        List<UUID> allPlayers = session.getAllPlayers();
 
         boolean isInParty = false;
         if (plugin.getPartyManager() != null) {
-            isInParty = plugin.getPartyHandler().getParty(session.getSender()) != null;
+            isInParty = plugin.getPartyHandler().getParty(sender) != null;
         }
 
         if (allPlayers.size() == 2 && !isInParty) {
-            Player enemy = allPlayers.stream().filter(player -> !player.equals(session.getSender())).findFirst().get();
-            plugin.getRequestHandler().sendRequest(session.getSender(), enemy, session);
+            UUID enemyUUID = allPlayers.stream().filter(uuid -> !uuid.equals(session.getSender())).findFirst().get();
+            Player enemy = Bukkit.getPlayer(enemyUUID);
+            if (enemy != null) {
+                plugin.getRequestHandler().sendRequest(sender, enemy, session);
+            }
         } else {
             plugin.getDuelHandler().newDuel(session);
         }
 
-        session.getSender().closeInventory();
+        sender.closeInventory();
     }
 
     @Override

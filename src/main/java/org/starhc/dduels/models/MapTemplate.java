@@ -1,6 +1,5 @@
 package org.starhc.dduels.models;
 
-import java.util.List;
 import java.util.Map;
 
 public class MapTemplate {

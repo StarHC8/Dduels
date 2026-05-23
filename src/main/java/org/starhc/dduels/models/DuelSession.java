@@ -1,22 +1,22 @@
 package org.starhc.dduels.models;
 
-import org.bukkit.entity.Player;
 import org.starhc.dduels.enums.DuelType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class DuelSession {
-    private final Player sender;
-    private List<Player> teamA;
-    private List<Player> teamB;
+    private final UUID sender;
+    private List<UUID> teamA;
+    private List<UUID> teamB;
     private MapTemplate selectedMapTemplate;
     private Kit selectedKit;
     private DuelType duelType;
-    private List<Player> allPlayers;
+    private List<UUID> allPlayers;
 
-    public DuelSession(Player sender, List<Player> allPlayers) {
+    public DuelSession(UUID sender, List<UUID> allPlayers) {
         this.sender = sender;
         this.allPlayers = allPlayers;
 
@@ -24,27 +24,27 @@ public class DuelSession {
         this.teamB = new ArrayList<>(allPlayers.subList(allPlayers.size() / 2, allPlayers.size()));
     }
 
-    public Player getSender() {
+    public UUID getSender() {
         return sender;
     }
 
-    public List<Player> getTeamA() {
+    public List<UUID> getTeamA() {
         return teamA;
     }
 
-    public List<Player> getTeamB() {
+    public List<UUID> getTeamB() {
         return teamB;
     }
 
-    public void setTeamA(List<Player> teamA) {
+    public void setTeamA(List<UUID> teamA) {
         this.teamA = teamA;
     }
 
-    public void setTeamB(List<Player> teamB) {
+    public void setTeamB(List<UUID> teamB) {
         this.teamB = teamB;
     }
 
-    public List<Player> getAllPlayers() {
+    public List<UUID> getAllPlayers() {
         return allPlayers;
     }
 
